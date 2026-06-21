@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ก่อนฝนจะหยุดตก - eBook Reader</title>
+    <meta name="description" content="ชายวัย 32 ปี ผู้ยังจมอยู่กับความเสียใจที่ไม่เคยบอกรักแม่ ได้พบร้านส่งพัสดุลึกลับที่เปิดเฉพาะคืนฝนตก ร้านแห่งนี้สามารถส่งพัสดุถึงผู้จากไปได้เพียงครั้งเดียว">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&family=Noto+Serif+Thai:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --font-serif: 'Noto Serif Thai', Georgia, serif;
+            --font-sans: 'Noto Sans Thai', 'Helvetica Neue', Arial, sans-serif;
+            --transition-speed: 0.3s;
+            --header-height: 64px;
+        }
+
+        /* Light Theme */
+        body.theme-light {
+            --bg-color: #FAF8F5;
+            --text-color: #2D2B2A;
+            --accent-color: #D4A373;
+            --accent-rgb: 212, 163, 115;
+            --card-bg: #FFFFFF;
+            --border-color: #E6E2DD;
+            --header-bg: rgba(250, 248, 245, 0.85);
+            --sidebar-bg: #F3EFE9;
+            --muted-text: #706B64;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --active-link-bg: rgba(212, 163, 115, 0.15);
+        }
+
+        /* Sepia Theme */
+        body.theme-sepia {
+            --bg-color: #F4ECD8;
+            --text-color: #5C4033;
+            --accent-color: #A0522D;
+            --accent-rgb: 160, 82, 45;
+            --card-bg: #FAF3E0;
+            --border-color: #E4D5B7;
+            --header-bg: rgba(244, 236, 216, 0.85);
+            --sidebar-bg: #EADCB9;
+            --muted-text: #8B7355;
+            --shadow-color: rgba(92, 64, 51, 0.08);
+            --active-link-bg: rgba(160, 82, 45, 0.12);
+        }
+
+        /* Dark Theme */
+        body.theme-dark {
+            --bg-color: #0A0F1D;
+            --text-color: #D1D5DB;
+            --accent-color: #FF9B50;
+            --accent-rgb: 255, 155, 80;
+            --card-bg: #111827;
+            --border-color: #1F2937;
+            --header-bg: rgba(10, 15, 29, 0.85);
+            --sidebar-bg: #0F172A;
+            --muted-text: #9CA3AF;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --active-link-bg: rgba(255, 155, 80, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-serif);
+            font-size: 18px;
+            line-height: 1.85;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color var(--transition-speed);
+        }
+
+        .btn-icon:hover {
+            background-color: rgba(128, 128, 128, 0.15);
+        }
+
+        .book-title {
+            font-family: var(--font-sans);
+            font-weight: 500;
+            font-size: 1.15rem;
+            letter-spacing: 0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Reading Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: transparent;
+            z-index: 99;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            transition: width 0.1s ease-out;
+        }
+
+        /* Sidebar Table of Contents */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            z-index: 101;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--header-height);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-book-title {
+            font-family: var(--font-sans);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-book-subtitle {
+            font-family: var(--font-serif);
+            font-size: 0.85rem;
+            color: var(--muted-text);
+            font-style: italic;
+        }
+
+        .toc-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .toc-item a {
+            display: block;
+            padding: 12px 24px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            transition: background-color 0.2s, color 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .toc-item a:hover {
+            background-color: rgba(128, 128, 128, 0.08);
+        }
+
+        .toc-item.active a {
+            background-color: var(--active-link-bg);
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Settings Panel Dropdown */
+        .settings-panel {
+            position: absolute;
+            top: calc(var(--header-height) - 10px);
+            right: 24px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            box-shadow: 0 10px 25px var(--shadow-color);
+            z-index: 102;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+        }
+
+        .settings-panel.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-label {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--muted-text);
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Theme Buttons */
+        .theme-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-theme {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            background: none;
+            color: var(--text-color);
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-theme:hover {
+            background-color: rgba(128, 128, 128, 0.08);
+        }
+
+        .btn-theme.active {
+            border-color: var(--accent-color);
+            background-color: var(--active-link-bg);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        /* Font Size controls */
+        .font-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-font {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: background-color 0.2s;
+        }
+
+        .btn-font:hover {
+            background-color: rgba(128, 128, 128, 0.08);
+        }
+
+        /* Rain Sound Ambient control */
+        .rain-sound-control {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rain-sound-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rain-toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+        }
+
+        .slider-container {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container.active {
+            display: flex;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            background: var(--border-color);
+            outline: none;
+            border-radius: 2px;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Reading Area Layout */
+        .reading-container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: calc(var(--header-height) + 60px) 24px 100px;
+        }
+
+        /* Book Intro Styling */
+        .book-intro-card {
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 60px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .book-intro-title {
+            font-family: var(--font-sans);
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            color: var(--text-color);
+        }
+
+        .book-intro-quote {
+            font-size: 1.15rem;
+            font-style: italic;
+            color: var(--muted-text);
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .book-intro-meta {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--muted-text);
+        }
+
+        /* Chapter Styles */
+        .chapter-section {
+            margin-bottom: 80px;
+            scroll-margin-top: calc(var(--header-height) + 30px);
+        }
+
+        .chapter-header {
+            margin-bottom: 35px;
+            text-align: center;
+        }
+
+        .chapter-title {
+            font-family: var(--font-sans);
+            font-size: 1.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .chapter-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--accent-color);
+            margin: 15px 0;
+            opacity: 0.6;
+        }
+
+        .chapter-divider span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+        }
+
+        .chapter-divider span:nth-child(2) {
+            width: 9px;
+            height: 9px;
+        }
+
+        /* Paragraph Styling */
+        .chapter-content p {
+            margin-bottom: 24px;
+            text-align: justify;
+            text-justify: inter-word;
+            font-weight: 300;
+        }
+
+        /* Dropcap styling for first paragraph */
+        .chapter-content p:first-of-type::first-letter {
+            font-family: var(--font-sans);
+            font-size: 3.4rem;
+            float: left;
+            margin-top: 6px;
+            margin-right: 10px;
+            line-height: 0.85;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        /* Quote styling */
+        .chapter-content blockquote {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            color: var(--muted-text);
+        }
+
+        .chapter-content p em {
+            font-style: italic;
+            opacity: 0.95;
+        }
+
+        .chapter-content p strong {
+            font-weight: 600;
+        }
+
+        /* Letter Styling in Chapter 5 */
+        .letter-box {
+            background-color: var(--card-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 35px 0;
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .letter-box p {
+            text-align: left;
+            margin-bottom: 16px;
+        }
+        
+        .letter-box p:first-of-type::first-letter {
+            float: none;
+            font-size: inherit;
+            margin: 0;
+            line-height: inherit;
+            font-weight: inherit;
+            color: inherit;
+        }
+
+        /* Footer styling */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-color);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--muted-text);
+        }
+
+        /* Quick Navigation Buttons (Floating bottom) */
+        .floating-controls {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 80;
+        }
+
+        .btn-float {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background-color var(--transition-speed);
+        }
+
+        .btn-float:hover {
+            transform: scale(1.08);
+            background-color: var(--sidebar-bg);
+        }
+
+        /* SVG Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            body {
+                font-size: 17px;
+            }
+            .book-intro-title {
+                font-size: 2.1rem;
+            }
+            .chapter-title {
+                font-size: 1.55rem;
+            }
+            .sidebar {
+                width: 280px;
+            }
+            .settings-panel {
+                width: 260px;
+                right: 16px;
+            }
+            .reading-container {
+                padding-top: calc(var(--header-height) + 30px);
+            }
+        }
+    </style>
+</head>
+<body class="theme-dark" id="reader-body">
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="btn-icon" id="btn-toggle-sidebar" aria-label="เปิดสารบัญ">
+                <!-- Hamburger Menu Icon -->
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+            </button>
+            <span class="book-title">ก่อนฝนจะหยุดตก</span>
+        </div>
+        <div class="header-right">
+            <!-- Rain Ambient toggle in header -->
+            <button class="btn-icon" id="btn-sound-toggle-header" title="เปิด/ปิดเสียงฝน">
+                <svg class="icon" viewBox="0 0 24 24" id="rain-icon-svg">
+                    <!-- Rain clouds icon (muted initially) -->
+                    <path d="M19.36 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.64-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/>
+                    <!-- Rain drops -->
+                    <path d="M9 21h2v2H9zM13 21h2v2h-2z" class="rain-drops-svg" style="display: none;"/>
+                </svg>
+            </button>
+            
+            <button class="btn-icon" id="btn-toggle-settings" aria-label="การตั้งค่าการอ่าน">
+                <!-- Gear settings Icon -->
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Reading Progress -->
+    <div class="progress-container">
+        <div class="progress-bar" id="reading-progress"></div>
+    </div>
+
+    <!-- Sidebar Navigation Drawer -->
+    <aside class="sidebar" id="sidebar-toc">
+        <div class="sidebar-header">
+            <h2 class="sidebar-book-title">ก่อนฝนจะหยุดตก</h2>
+            <p class="sidebar-book-subtitle">มีบางคำพูดที่ช้าเกินกว่าจะเอ่ยทัน แต่ไม่เคยสายเกินกว่าจะส่งถึง</p>
+        </div>
+        <ul class="toc-list">
+            <li class="toc-item active" data-target="intro"><a href="#intro">ปกหนังสือ</a></li>
+            <li class="toc-item" data-target="prologue"><a href="#prologue">บทนำ: ร้านส่งพัสดุในคืนฝนพรำ</a></li>
+            <li class="toc-item" data-target="chap1"><a href="#chap1">บทที่ 1: กล่องพัสดุเปล่า</a></li>
+            <li class="toc-item" data-target="chap2"><a href="#chap2">บทที่ 2: ร่องรอยของแม่</a></li>
+            <li class="toc-item" data-target="chap3"><a href="#chap3">บทที่ 3: เมล็ดพันธุ์ของหญิงชรา</a></li>
+            <li class="toc-item" data-target="chap4"><a href="#chap4">บทที่ 4: เด็กชายผู้เดินทางผิดเวลา</a></li>
+            <li class="toc-item" data-target="chap5"><a href="#chap5">บทที่ 5: จดหมายและสูตรไข่เจียว</a></li>
+            <li class="toc-item" data-target="chap6"><a href="#chap6">บทที่ 6: คำพูดที่ส่งถึง</a></li>
+            <li class="toc-item" data-target="epilogue"><a href="#epilogue">บทส่งท้าย: สายฝนครั้งถัดไป</a></li>
+        </ul>
+    </aside>
+
+    <!-- Settings Dropdown Panel -->
+    <div class="settings-panel" id="settings-dropdown">
+        <!-- Theme selection -->
+        <div class="settings-group">
+            <span class="settings-label">โทนสี (Theme)</span>
+            <div class="theme-buttons">
+                <button class="btn-theme" data-theme="light">
+                    <!-- Sun icon -->
+                    <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41zm-12.37 12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41z"/></svg>
+                    สว่าง
+                </button>
+                <button class="btn-theme" data-theme="sepia">
+                    <!-- Book icon -->
+                    <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24"><path fill="currentColor" d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM6 9H3V7h3v2zm7 0H7V7h6v2zm8 0h-6V7h6v2zm-15 4H3v-2h3v2zm7 0H7v-2h6v2zm8 0h-6v-2h6v2zm-15 4H3v-2h3v2zm7 0H7v-2h6v2zm8 0h-6v-2h6v2z"/></svg>
+                    ซีเปีย
+                </button>
+                <button class="btn-theme active" data-theme="dark">
+                    <!-- Moon icon -->
+                    <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-9 8.3-9.9.5-.1 1 .3.9.8-.1.4-.1.8-.1 1.2 0 4.4 3.6 8 8 8 .4 0 .8 0 1.2-.1.5-.1.9.4.8.9-.9 4.8-5.1 8.1-9.9 8.1zm-6.2-10c0 3.9 3.1 7 7 7 2.8 0 5.2-1.6 6.3-4-.7.1-1.4.1-2.1.1-5.5 0-10-4.5-10-10 0-.7 0-1.4.1-2.1-2.4 1.1-4 3.5-4 6.3z"/></svg>
+                    มืด
+                </button>
+            </div>
+        </div>
+
+        <!-- Font size control -->
+        <div class="settings-group">
+            <span class="settings-label">ขนาดตัวอักษร (Text Size)</span>
+            <div class="font-controls">
+                <button class="btn-font" id="btn-font-dec">A -</button>
+                <button class="btn-font" id="btn-font-inc">A +</button>
+            </div>
+        </div>
+
+        <!-- Rain sound control -->
+        <div class="settings-group">
+            <span class="settings-label">เสียงบรรยากาศ (Ambient Sound)</span>
+            <div class="rain-sound-control">
+                <div class="rain-sound-header">
+                    <label class="rain-toggle-switch" id="btn-sound-toggle-panel">
+                        <input type="checkbox" id="rain-sound-checkbox" style="margin-right: 6px; cursor: pointer;">
+                        <span>เปิดเสียงฝนตกคลอเบา ๆ</span>
+                    </label>
+                </div>
+                <div class="slider-container" id="volume-slider-container">
+                    <!-- Volume icon -->
+                    <svg class="icon" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    <input type="range" class="volume-slider" id="rain-volume" min="0" max="1" step="0.05" value="0.3">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="sidebar-overlay"></div>
+
+    <!-- Reading Container -->
+    <main class="reading-container" id="reading-area">
+        
+        <!-- Book Cover Intro -->
+        <section class="book-intro-card" id="intro">
+            <h1 class="book-intro-title">ก่อนฝนจะหยุดตก</h1>
+            <p class="book-intro-quote">"มีบางคำพูดที่ช้าเกินกว่าจะเอ่ยทัน แต่ไม่เคยสายเกินกว่าจะส่งถึง"</p>
+            <div class="book-intro-meta">
+                <p>นวนิยายโดย: เอไอเขียนร่วมกับพาร์ตเนอร์</p>
+                <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.6;">เลื่อนเพื่อเริ่มต้นอ่านการเดินทางของการปล่อยวาง</p>
+            </div>
+        </section>
+
+        <!-- Prologue -->
+        <article class="chapter-section" id="prologue">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทนำ: ร้านส่งพัสดุในคืนฝนพรำ</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>สายฝนยามค่ำคืนมักจะพกพาบางสิ่งบางอย่างมาด้วยเสมอ—กลิ่นดินชื้นแฉะ เสียงเปาะแปะที่กระทบลงบนหลังคาสังกะสีเก่า ๆ และความเงียบงันที่บีบให้ผู้คนต้องหันกลับไปเผชิญหน้ากับตะกอนความคิดที่ซุกซ่อนอยู่ก้นบึ้งของหัวใจ</p>
+                <p>ในซอยแคบ ๆ ที่แยกตัวออกจากถนนสายหลักอันพลุกพล่านของกรุงเทพมหานคร ซอยที่ไม่มีแม้แต่เสาไฟส่องสว่างเพียงพอและแทบจะหายไปจากแผนที่ดิจิทัลของผู้คนยุคใหม่ ที่นั่นมีร้านค้าชั้นเดียวหลังเล็กซ่อนตัวอยู่ ตัวอาคารสร้างจากไม้สีเข้มที่ทนแดดทนฝนมาหลายทศวรรษ กระจกหน้าร้านมัวซัวด้วยคราบไอน้ำ ละอองฝนเกาะกุมจนแทบจะมองไม่เห็นด้านใน</p>
+                <p>มันเป็นร้านที่ไม่มีป้ายชื่อ ไม่มีไฟนีออนสว่างไสวสะดุดตา</p>
+                <p>แต่เมื่อใดก็ตามที่พายุฝนเริ่มตั้งเค้า และหยาดน้ำฟ้าเม็ดแรกแตะลงสู่พื้นผิวถนนยางมะตอย แง้มประตูกระจกส้มละมุนละไมจะสว่างขึ้นจากภายในร้าน แสงไฟสีส้มอบอุ่นดวงหนึ่งจะสว่างขึ้นจากภายในร้าน แสงนั้นลอดผ่านรอยแยกของบานประตูไม้และคราบฝ้าบนกระจก ราวกับดวงประทีปที่คอยนำทางเรือประมงกลางมรสุม</p>
+                <p>ชายชราเจ้าของร้านขยับตัวอย่างเชื่องช้า เสียงข้อต่อกระดูกลั่นเบา ๆ เมื่อเขาลุกขึ้นจากเก้าอี้หวายตัวโปรด เขาสวมเสื้อไหมพรมถักสีครีมทับเสื้อเชิ้ตลายสก็อตสีซีด ใบหน้าของเขาเต็มไปด้วยรอยเหี่ยวย่นตามกาลเวลา ดวงตาทั้งสองข้างแม้จะดูฝ้าฟางตามวัย ทว่ายามจ้องมองไปยังสายฝนด้านนอก กลับเปี่ยมไปด้วยความเข้าใจอันลึกซึ้ง</p>
+                <p>เขาเดินไปที่เคาน์เตอร์ไม้หนาเตอะ ชายชราเอื้อมมือไปหยิบป้ายไม้แผ่นเก่าที่เขียนด้วยลายมือบรรจงผ่านพู่กันจีน มันเป็นข้อความภาษาไทยเรียบง่ายแต่สะดุดตา:</p>
+                <blockquote>“รับส่งพัสดุถึงผู้ไม่มีที่อยู่”</blockquote>
+                <p>ชายชราแง้มประตูไม้เปิดออก ลมฝนหอบเอาความชื้นและไอเย็นพัดเข้ามาปะทะใบหน้า เขานำป้ายไม้นั้นไปแขวนไว้ที่ตะปูข้างประตูอย่างมั่นคง ก่อนจะดึงบานประตูกลับมาปิดตามเดิม ล็อคกลอนไม้อย่างแน่นหนาเพื่อกั้นความหนาวเหน็บภายนอกไว้ เหลือทิ้งไว้เพียงเสียงเม็ดฝนที่ตกกระทบหลังคาคล้ายเสียงดนตรีประกอบจังหวะอันสม่ำเสมอ</p>
+                <p>ภายในร้านมีกลิ่นหอมกรุ่นของชาอู่หลงผสมผสานกับกลิ่นกระดาษเก่าและเชือกป่าน บนชั้นวางไม้รอบตัวร้านไม่ได้มีสินค้าจัดแสดงเหมือนร้านโชห่วยทั่วไป หากแต่เต็มไปด้วยกล่องกระดาษสีน้ำตาลหลากหลายขนาด บางกล่องดูใหม่เอี่ยม บางกล่องดูเก่าจนขอบกระดาษเปื่อยยุ่ย ทุกกล่องถูกมัดด้วยเชือกป่านอย่างประณีตและติดป้ายกระดาษแผ่นเล็ก ๆ ไว้ ทว่าป้ายเหล่านั้นไม่ได้ระบุบ้านเลขที่หรือรหัสไปรษณีย์ใด ๆ มีเพียงชื่อของบุคคลและข้อความสั้น ๆ เช่น <em>"ถึงพ่อ - จากลูกชายที่เพิ่งเข้าใจ"</em>, <em>"ถึงคุณยาย - สวนหลังบ้านออกดอกแล้วนะ"</em> หรือบางกล่องก็มีเพียงข้อความสั้น ๆ ว่า <em>"ขอโทษ"</em></p>
+                <p>นี่คือร้านส่งพัสดุที่เปิดเฉพาะในคืนฝนตก</p>
+                <p>ร้านที่ไม่เคยปรากฏตัวสำหรับคนที่เดินผ่านไปมาอย่างรีบร้อนเพื่อหาที่หลบฝน ร้านที่จะไม่ยอมให้ใครมองเห็น เว้นเสียแต่ว่าคนคนนั้นจะมี "ของบางชิ้น" หรือ "คำบางคำ" ที่ติดค้างอยู่ภายในใจ และไม่สามารถส่งตรงถึงผู้รับได้อีกต่อไปตลอดกาล</p>
+                <p>ชายชราเดินกลับมาหลังเคาน์เตอร์ หยิบกาน้ำชาดินเผาที่ไอร้อนยังคงลอยกรุ่นขึ้นมา รินน้ำชาสีทองใสลงในถ้วยกระเบื้องเคลือบใบเล็ก เขายกมันขึ้นจิบช้า ๆ ปล่อยให้ความอุ่นแล่นผ่านลำคอเพื่อขับไล่ความเย็นเยียบของฤดูกาล</p>
+                <p>“วันนี้ฝนตกหนักตั้งแต่หัวค่ำ...” ชายชราพึมพำกับตัวเอง สายตาเหม่อมองไปยังประตูร้าน “คงมีใครบางคนกำลังหลงทางอยู่ท่ามกลางพายุเป็นแน่”</p>
+                <p>ร้านแห่งนี้ไม่เคยต้องการโฆษณา ไม่เคยต้องการยอดขาย และที่สำคัญที่สุด... <em>ร้านนี้ไม่ได้อยากมีลูกค้า</em></p>
+                <p>เพราะการที่ใครสักคนจะก้าวเท้าผ่านประตูบานนี้เข้ามาได้ นั่นหมายความว่าพวกเขาได้สูญเสียโอกาสที่จะเอ่ยปากพูดต่อหน้าบุคคลอันเป็นที่รักไปเสียแล้ว และต้องแบกความเสียดายอันหนักอึ้งเดินทางฝ่าสายฝนมาเพื่อหาหนทางสุดท้าย หนทางที่จะส่งสารข้ามผ่านเส้นขอบฟ้าที่ไม่มีวันหวนกลับ</p>
+                <p>ชายชราทรุดตัวลงนั่งบนเก้าอี้หวายอีกครั้ง ผ่อนลมหายใจยาว หลับตาลงฟังเสียงสายฝนที่ยังคงตกกระหน่ำอย่างไม่มีทีท่าว่าจะหยุด เขาทำได้เพียงรอคอย... รอคอยผู้อพยพทางจิตวิญญาณคนถัดไปที่จะเดินเข้ามาค้นหาความสงบในใจ ก่อนที่พายุฝนคืนนี้จะซาลง</p>
+            </div>
+        </article>
+
+        <!-- Chapter 1 -->
+        <article class="chapter-section" id="chap1">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทที่ 1: กล่องพัสดุเปล่า</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>ความเหนื่อยล้าของวัยสามสิบสองปี มักจะแสดงออกผ่านหัวไหล่ที่ล้าลู่และแว่นตาที่มัวซัวไปด้วยหยดน้ำ</p>
+                <p>เกมกระชับร่มคันเก่าในมือแน่น ลมกระโชกแรงหอบเอาเม็ดฝนสาดซัดเข้ามาทางด้านข้างจนกางเกงสแลกสีเข้มของเขาเปียกโชกตั้งแต่ช่วงเข่าลงไป เสียงล้อรถยนต์บดน้ำบนพื้นถนนดังฟู่เป็นระยะสลับกับแสงไฟหน้ารถที่สาดสะท้อนผิวน้ำเจิ่งนองบนทางเท้า รถไฟฟ้าเพิ่งแล่นผ่านไปบนรางยกระดับ ส่งเสียงครางครืดคราดสะเทือนผ่านมวลอากาศชื้นแฉะ</p>
+                <p>ห้าปีแล้วที่ชีวิตของเขาดำเนินไปในลักษณะนี้ วนเวียนอยู่กับการเข้างานตรงเวลา ทำงานเอกสารที่ไม่มีวันสิ้นสุด และเดินทางกลับคอนโดมิเนียมห้องชุดแคบ ๆ ในคืนที่ฝนตกหนักเช่นนี้ เป็นชีวิตที่ดูเหมือนก้าวหน้าในสายตาคนอื่น ทว่าหัวใจของเขากลับเหมือนถูกแช่แข็งไว้ ณ ช่วงเวลาหนึ่งในอดีต—ช่วงเวลาที่สายโทรศัพท์จากโรงพยาบาลดังขึ้นในบ่ายวันศุกร์เมื่อห้าปีก่อน และเขาเลือกที่จะกดตัดสายเพราะกำลังติดประชุมสำคัญ</p>
+                <p><em>“ประชุมเสร็จแล้วเดี๋ยวโทรกลับนะแม่”</em> นั่นคือข้อความสุดท้ายที่เขาส่งไป และมันกลายเป็นข้อความสุดท้ายตลอดกาล</p>
+                <p>เกมถอนหายใจยาว ไอหมอกจาง ๆ ลอยออกจากปาก ความทรงจำเหล่านั้นยังคงคมกริบและคอยกรีดแทงหัวใจเขาเสมอในยามที่ร่างกายอ่อนแอ โดยเฉพาะในวันฝนตกที่บรรยากาศรอบตัวเต็มไปด้วยความหม่นหมอง</p>
+                <p>ลมพายุหมุนกรรโชกอีกระลอก คราวนี้มันแรงพอที่จะทำให้ซี่ร่มพลาสติกราคาถูกในมือของเขาหักสะบั้นและพับย้อนกลับ เกมสบถเบา ๆ ในลำคอ เขาไม่มีทางเลือกอื่นนอกจากต้องรีบก้าวเท้าสับไว ๆ หาที่หลบฝน เขาเลี้ยวซ้ายเข้าสู่ซอยย่อยแห่งหนึ่งที่ดูเหมือนจะเป็นซอยตัน ลัดเลาะไปตามแนวชายคาตึกเพื่อหลีกเลี่ยงหยาดน้ำฟ้าที่เทกระหน่ำลงมาอย่างไม่ลืมหูลืมตา</p>
+                <p>ลึกเข้ามาในซอยที่เงียบสงัดจนน่าประหลาด เสียงอึกทึกของถนนใหญ่ฝั่งตรงข้ามคล้ายจะค่อย ๆ จางหายไป ท่ามกลางความมืดมิดและละอองฝนสีเทา เกมพลันสังเกตเห็นแสงสว่างสีส้มละมุนละไมดวงหนึ่ง แสงนั้นส่องสว่างออกมาจากโคมไฟโบราณที่แขวนอยู่หน้าบานประตูไม้ของร้านค้าเล็ก ๆ หลังหนึ่ง</p>
+                <p>เขารีบก้าวเท้าเข้าไปใต้ชายคาของร้านนั้นเพื่อหลบฝนพลางหุบร่มที่พังยับเยินทิ้งลงข้างถังขยะ เกมยกมือขึ้นลูบหน้าเพื่อเช็ดน้ำฝนที่ไหลซึมลงมาตามหน้าผาก ขณะที่เขากำลังก้มหัวบิดน้ำออกจากชายเสื้อสูท สายตาก็เหลือบไปเห็นป้ายไม้แผ่นเก่าที่แขวนอยู่ข้างประตู</p>
+                <blockquote>“รับส่งพัสดุถึงผู้ไม่มีที่อยู่”</blockquote>
+                <p>เกมขมวดคิ้ว ลายมือที่เขียนบนป้ายนั้นสวยงามทว่าดูโบราณราวกับหลุดมาจากอีกยุคสมัย “ไม่มีที่อยู่เหรอ...” เขารำพึงกับตัวเองพลางนึกสงสัยว่าอาจเป็นคำเก๋ ๆ ของบริษัทขนส่งเอกชนยุคใหม่หรือเปล่า แต่ในซอยลึกและเปลี่ยวขนาดนี้เนี่ยนะ?</p>
+                <p>ก่อนที่เขาจะได้คิดอะไรไปไกลกว่านั้น ประตูไม้ก็เปิดออกอย่างนุ่มนวล ชายชราคนหนึ่งยืนอยู่ตรงช่องประตู สวมเสื้อไหมพรมถักสีครีมหนานุ่ม ใบหน้าที่เต็มไปด้วยรอยเหี่ยวย่นฉายแววสงบและอบอุ่น ดวงตาคู่นั้นจ้องมองเกมราวกับกำลังรอคอยการมาเยือนของเขาอยู่แล้ว</p>
+                <p>“ฝนตกหนักเชียว เข้ามาข้างในก่อนสิคุณ” ชายชราเอ่ยน้ำเสียงทุ้มต่ำและราบเรียบ</p>
+                <p>เกมลังเลอยู่ครู่หนึ่ง ความหนาวเย็นที่เริ่มจับตัวตามผิวหนังชื้นแฉะผลักดันให้เขาพยักหน้ารับ “ขอบคุณครับ” เขาก้าวข้ามธรณีประตูเข้าไปภายในร้าน</p>
+                <p>ทันทีที่ประตูไม้ปิดลง เสียงพายุฝนข้างนอกก็พลันลดระดับเสียงลงคล้ายถูกปิดสวิตช์ เหลือเพียงเสียงเปาะแปะแผ่วเบาที่ดังแว่วมาจากหลังคา สัมผัสแรกที่ต้องผิวของเกมคือไออุ่นและกลิ่นหอมผ่อนคลายของใบชาอู่หลงผสมผสานกับกลิ่นหนังสือเก่า ชายชราเดินนำเขาไปยังเคาน์เตอร์ไม้ตัวหนาที่มีเก้าอี้ไม้มีพนักพิงตั้งอยู่สองตัว เขายื่นผ้าขนหนูผืนเล็กที่สะอาดและแห้งสนิทให้เกม</p>
+                <p>“เช็ดหัวเสียหน่อย เดี๋ยวจะไม่สบายเอา”</p>
+                <p>“ขอบคุณครับ” เกมรับผ้ามาซับหยดน้ำบนผมและใบหน้า พลางกวาดสายตามองไปรอบ ๆ ร้านอย่างพินิจพิจารณา</p>
+                <p>ร้านนี้ไม่มีตู้แช่เครื่องดื่ม ไม่มีชั้นวางขนมขบเคี้ยว มีเพียงชั้นวางไม้สูงจรดเพดานที่เต็มไปด้วยกล่องกระดาษสีน้ำตาลอ่อนมัดด้วยเชือกป่านอย่างเป็นระเบียบ ทุกกล่องมีป้ายกระดาษแผ่นเล็กเขียนข้อความสั้น ๆ แขวนไว้ บนโต๊ะไม้ตัวยาวมีตาชั่งแบบโบราณ ม้วนเชือกป่าน กรรไกร และตลับหมึกสีเข้มวางอยู่อย่างประณีต</p>
+                <p>“ที่นี่... เป็นร้านส่งพัสดุด่วนเหรอครับ?” เกมถามพลางส่งผ้าขนหนูคืนให้</p>
+                <p>ชายชราเดินไปยกกาน้ำชาดินเผารินน้ำชาสีทองใสลงในถ้วยกระเบื้องเล็ก ๆ สองใบ เขาดันถ้วยหนึ่งมาตรงหน้าเกม “ดื่มชาอุ่น ๆ ก่อนสิ มันช่วยให้ร่างกายปรับอุณภูมิได้ดีขึ้น” ชายชรานั่งลงบนเก้าอี้ฝั่งตรงข้าม “จะว่างั้นก็ได้ แต่เราส่งพัสดุในแบบที่ต่างจากที่อื่นเล็กน้อย”</p>
+                <p>เกมยกถ้วยชาขึ้นประคองไว้ในอุ้งมือ ความอบอุ่นจากผิวกระเบื้องแผ่ซ่านเข้าสู่ฝ่ามือที่เย็นเฉียบของเขา เขายกจิบช้า ๆ รสชาติขมฝาดปนหวานอ่อน ๆ ของชาช่วยผ่อนคลายกล้ามเนื้อที่ตึงเครียดของเขาลงอย่างน่าประหลาด “ต่างยังไงเหรอครับ?”</p>
+                <p>“เราส่งพัสดุให้กับคนที่ไม่สามารถรับสารผ่านช่องทางธรรมดาได้อีกต่อไปแล้ว” ชายชราสบตากับเกม “พูดง่าย ๆ ก็คือ คนที่จากโลกนี้ไปแล้ว”</p>
+                <p>เกมชะงักถ้วยชาในมือ ดวงตาเบิกกว้างขึ้นเล็กน้อย เขามองชายชราอย่างจับสังเกตว่ากำลังพูดเล่นหรือล้อเลียนเขาอยู่หรือเปล่า แต่ใบหน้าของชายชรายังคงเรียบเฉยและจริงจัง ไม่มีแววของความล้อเล่นแม้แต่น้อย</p>
+                <p>“นี่... ล้อเล่นใช่ไหมครับ? ส่งของไปให้คนตายเนี่ยนะ?” เกมหัวเราะเบา ๆ ในลำคอ แต่มันเป็นเสียงหัวเราะที่ไร้ความรู้สึก “เรื่องแบบนั้นมันจะเป็นไปได้ยังไง”</p>
+                <p>“คนส่วนใหญ่มักคิดแบบนั้นจนกระทั่งพวกเขาไม่มีทางเลือกอื่น” ชายชรายกชาจิบช้า ๆ “ร้านของเราเปิดเฉพาะคืนฝนตก และเปิดให้เฉพาะคนที่มีคำพูดค้างคาอยู่ในหัวใจเท่านั้น หากคุณเดินผ่านเข้ามาที่นี่ได้โดยบังเอิญ นั่นแปลว่าคุณมีคนที่อยากส่งของไปให้... คนที่คุณไม่มีโอกาสได้พูดคุยกับเขาอีกแล้ว”</p>
+                <p>คำพูดของชายชราราวกับลูกตุ้มเหล็กหนัก ๆ ที่เหวี่ยงมากระทบหน้าอกของเกมอย่างจัง ภาพของแม่ในความทรงจำ—ภาพที่แม่ยืนทำกับข้าวในครัวหลังบ้าน เสียงบ่นอย่างห่วงใยที่เขาเคยรำคาญ และใบหน้าสุดท้ายในโลงศพที่เขาได้แต่มองผ่านม่านน้ำตาโดยไม่มีโอกาสได้บอกลา—วาบขึ้นมาในสมองอย่างรวดเร็ว</p>
+                <p>เกมนิ่งเงียบไปนาน ความเงียบในร้านปกคลุมจนได้ยินเสียงลมหายใจของตัวเอง เขามองถ้วยชาในมือพลางถามเสียงแผ่ว “ถ้างั้น... กฎของร้านนี้คืออะไรครับ?”</p>
+                <p>ชายชราพยักหน้าเล็กน้อยราวกับคาดเดาคำถามนี้ไว้แล้ว “มีกฎสำคัญอยู่ห้าข้อที่คุณต้องรู้และยอมรับ” เขากล่าวเสียงเรียบ</p>
+                <p>“ข้อแรก คุณส่งพัสดุได้เพียงครั้งเดียวในชีวิตของคุณเท่านั้น”<br>
+                “ข้อสอง ผู้รับต้องเป็นคนที่ไม่มีวันตอบกลับคุณได้อีก—คนที่ตายไปแล้วเท่านั้น”<br>
+                “ข้อสาม คุณต้องส่งเฉพาะสิ่งของที่คุณยินยอมและพร้อมที่จะสูญเสียมันไปจริง ๆ เพราะมันจะไม่มีวันกลับมาหาคุณอีก”<br>
+                “ข้อสี่ พัสดุชิ้นนี้ไม่สามารถเปลี่ยนแปลงอดีตได้ แม่ของคุณจะไม่ฟื้นคืนมา และความผิดพลาดในอดีตของคุณก็จะไม่ถูกลบเลือน”<br>
+                “และข้อสุดท้าย... หากผู้รับของคุณยังมีชีวิตอยู่ หรือคุณยังมีโอกาสที่จะพูดคุยกับเขาด้วยตัวเอง ร้านของเราจะไม่รับส่งพัสดุชิ้นนั้นเด็ดขาด”</p>
+                <p>เกมนิ่งฟัง กฎทุกข้อฟังดูหนักแน่นและไม่มีช่องว่างให้กับการขอร้องใด ๆ “มันจะไปถึงจริง ๆ ใช่ไหมครับ? แม่ของผม... เธอจะได้ยินสิ่งที่ผมอยากบอกจริง ๆ ใช่ไหม?”</p>
+                <p>“พัสดุจะส่งถึงมือผู้รับเสมอ” ชายชราตอบ “แต่สิ่งสำคัญไม่ได้อยู่ที่ปลายทางหรอกนะคุณเกม... มันอยู่ที่ว่าคุณพร้อมจะปล่อยมือจากของชิ้นนั้นและเรื่องราวเหล่านั้นหรือยัง”</p>
+                <p>เกมสะดุ้งเมื่อชายชราเรียกชื่อของเขา ทั้งที่เขายังไม่ได้แนะนำตัวเลยด้วยซ้ำ ความรู้สึกกึ่งเชื่อกึ่งสงสัยยังคงตีกันยุ่งเหยิงในหัว แต่ลึก ๆ แล้ว ความอ่อนแอและความโหยหาในใจกลับเรียกร้องให้เขาลองเสี่ยงดู แม้ว่ามันจะเป็นเพียงเรื่องลวงโลกก็ตาม อย่างน้อยมันก็เป็นหนทางเดียวที่เขาจะหลุดพ้นจากความรู้สึกผิดนี้ได้</p>
+                <p>ชายชราลุกขึ้นยืน เดินไปหยิบกล่องกระดาษสีน้ำตาลขนาดกลางกล่องหนึ่งมาจากชั้นวางด้านหลัง มันเป็นกล่องกระดาษเปล่าที่แข็งแรงทับแบนไว้ เขากางมันออกจนกลายเป็นทรงสี่เหลี่ยม จากนั้นจึงส่งมันข้ามเคาน์เตอร์มาให้เกม</p>
+                <p>“เอากล่องนี้กลับไป” ชายชราบอก “ใส่ของที่คุณอยากส่งให้แม่ลงไปในกล่องนี้ เขียนจดหมายสั้น ๆ ใส่เข้าไปด้วยก็ได้ เมื่อคุณตัดสินใจได้แล้วและพร้อมที่จะปล่อยมันไป จงนำกล่องนี้กลับมาหาฉันในคืนที่ฝนตก”</p>
+                <p>เกมรับกล่องกระดาษเปล่ามาถือไว้ มันเบาหวิวราวกับไม่มีน้ำหนัก ทว่าเขากลับรู้สึกเหมือนกำลังแบกรับก้อนหินขนาดใหญ่ไว้บนบ่า “ผมมีเวลาเท่าไหร่ครับ?”</p>
+                <p>“ตราบใดที่ฝนยังตก ร้านนี้จะยังเปิดอยู่” ชายชรายิ้มบาง ๆ “แต่จำไว้เถอะ... ไม่มีพัสดุชิ้นไหนเดินทางช้าหรอก มีแต่คนที่ใช้เวลานานกว่าจะยอมส่งมันออกไปเท่านั้น”</p>
+                <p>เกมก้มมองกล่องในมือ ก่อนจะเงยหน้าขึ้นพยักหน้า “ขอบคุณครับ ผมจะลองคิดดู”</p>
+                <p>เขากระชับกล่องกระดาษเปล่าไว้แนบอก เดินตรงไปยังประตูร้าน เมื่อแง้มประตูออก กลิ่นอายเย็นฉ่ำของพายุฝนก็พัดเข้ามาอีกครั้ง เกมก้าวเท้าออกไปสู่ทางเท้าที่เฉอะแฉะ ลมฝนพัดเข้ากระทบหน้าจนต้องหยีตา เขาหันหลังกลับไปตั้งใจจะกล่าวลาชายชราอีกครั้ง</p>
+                <p>ทว่าเบื้องหลังของเขากลับมีเพียงกำแพงปูนเปลือยเก่า ๆ ของตึกแถวและถังขยะใบเดิมที่เขาเพิ่งทิ้งร่มลงไป แสงไฟสีส้มละมุนและประตูไม้บานนั้นเลือนหายไปราวกับเป็นเพียงภาพลวงตาในม่านหมอกฝน</p>
+                <p>เกมยืนนิ่งอยู่ตรงนั้นท่ามกลางพายุฝนที่ยังคงกระหน่ำซัด หัวใจของเขาเต้นระรัวด้วยความสับสนและหวาดกลัว ทว่าในอ้อมแขนของเขา... กล่องกระดาษสีน้ำตาลอ่อนมัดด้วยเชือกป่านยังคงอยู่ตรงนั้น มันแห้งสนิทและมีกลิ่นอายอุ่น ๆ ของชาอู่หลงจาง ๆ ลอยออกมา</p>
+                <p>เขากอดกล่องเปล่านั้นไว้แน่นยิ่งขึ้น ก่อนจะก้าวเท้าฝ่าสายฝนเดินกลับบ้านด้วยหัวใจที่เริ่มมีความหวังริบหรี่ปะทุขึ้นมาท่ามกลางความมืดมิด</p>
+            </div>
+        </article>
+
+        <!-- Chapter 2 -->
+        <article class="chapter-section" id="chap2">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทที่ 2: ร่องรอยของแม่</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>กล่องกระดาษสีน้ำตาลวางอยู่บนโต๊ะกินข้าวขนาดสองที่นั่งกลางห้องนั่งเล่นของคอนโดมิเนียม</p>
+                <p>รอบข้างกล่องมีรอยหยดน้ำฝนที่ซึมผ่านเสื้อโค้ตของเขาจนเปียกเป็นวงจาง ๆ บนเนื้อไม้เทียม เกมทรุดตัวลงนั่งบนเก้าอี้พลางจ้องมองกล่องใบนั้นด้วยแววตาสับสนและเหนื่อยล้า พัดลมเพดานหมุนเอื่อย ๆ ส่งเสียงหึ่ง ๆ เบา ๆ ทำลายความเงียบงันของห้องชุดชั้นที่สิบแปด เขายังไม่ได้เปลี่ยนเสื้อผ้าที่ชื้นชื้น มีเพียงความรู้สึกเย็นเยือกจากละอองฝนภายนอกที่ยังเกาะกุมตามผิวหนัง</p>
+                <p>ห้าปีแล้วที่อพาร์ตเมนต์ห้องนี้ถูกปิดตายจากความเปลี่ยนแปลงใด ๆ ทุกอย่างยังคงอยู่ตำแหน่งเดิมเหมือนวันแรกที่แม่จากไป</p>
+                <p>เกมนึกถึงกฎข้อที่สามของร้านลึกลับแห่งนั้นขึ้นมา: <em>คุณต้องส่งเฉพาะสิ่งของที่คุณยินยอมและพร้อมที่จะสูญเสียมันไปจริง ๆ เพราะมันจะไม่มีวันกลับมาหาคุณอีก</em></p>
+                <p>"พร้อมที่จะสูญเสียจริง ๆ งั้นเหรอ..." เขาพึมพำกับตัวเอง เสียงนั้นแผ่วเบาราวกับจะจมหายไปในความเงียบ</p>
+                <p>เขาขยับตัวลุกขึ้น ก้าวเท้าตรงไปยังห้องเก็บของเล็ก ๆ ที่อยู่ติดกับครัว ล็อคประตูห้องเก็บของส่งเสียงดังคลิกเมื่อเขาบิดลูกบิดไม้ ภายในนั้นมีกล่องพลาสติกใสขนาดใหญ่สามสี่ใบวางซ้อนกันอยู่ ทุกใบติดป้ายกระดาษกาวเขียนด้วยลายมือของเขาเองว่า "ของของแม่"</p>
+                <p>เกมนั่งคุกเข่าลงกับพื้นห้องเก็บของฝุ่นจับ ลมหายใจสะดุดเล็กน้อยเมื่อต้องเผชิญหน้ากับประวัติศาสตร์ที่เขาพยายามซุกซ่อนไว้ เขาเปิดฝากล่องพลาสติกใบแรกออก ทันใดนั้น กลิ่นอายจาง ๆ ของแป้งเด็กยี่ห้อโปรดที่แม่มักใช้ทาตัวหลังอาบน้ำก็โชยมาปะทะจมูก มันเป็นกลิ่นที่คุ้นเคยเสียจนทำให้ขอบตาของเขาร้อนผ่าวขึ้นมาในทันที</p>
+                <p>ของชิ้นแรกที่เขาหยิบขึ้นมาคือ <strong>เสื้อคาร์ดิแกนไหมพรมสีเทาอ่อน</strong></p>
+                <p>มันเป็นเสื้อที่แม่ถักขึ้นมาเองด้วยมือ แม้ฝีเข็มจะไม่เรียบร้อยสมบูรณ์แบบ มีบางจุดที่ไหมพรมหลวมและหลุดรุ่ย แต่แม่ก็ชอบใส่มันบ่อยมากเวลาที่กรุงเทพฯ เริ่มมีลมหนาวพัดผ่านมาในช่วงปลายปี เกมลูบไล้เนื้อไหมพรมหยาบ ๆ นั้นอย่างทะนุถนอม เขายกมันขึ้นมาทาบหน้าผาก กลิ่นของแป้งเด็กและสบู่อ่อน ๆ ยังคงซึมลึกอยู่ในใยไหมพรมนี้ ราวกับว่าแม่เพิ่งถอดมันวางไว้เมื่อไม่กี่นาทีที่ผ่านมา</p>
+                <p>เขาลองจินตนาการว่าหากเขาวางเสื้อตัวนี้ลงในกล่องสีน้ำตาลของร้านนั้น เสื้อตัวนี้จะเดินทางหายไปในอากาศธาตุเพื่อไปปรากฏต่อหน้าแม่ เขาจะไม่มีวันได้กลิ่นนี้อีก จะไม่มีวันได้สัมผัสไหมพรมอุ่น ๆ นี้อีกตลอดกาล</p>
+                <p>"ไม่... ชิ้นนี้ไม่ได้" เกมพูดเสียงสั่นพลางพับเสื้อคาร์ดิแกนวางไว้ข้างตัวอย่างรวดเร็ว เขายังใจแข็งไม่พอที่จะสูญเสียมันไป</p>
+                <p>เขาเอื้อมมือลงไปในกล่องพลาสติกอีกครั้ง คราวนี้มือของเขาไปสัมผัสกับวัตถุโลหะชิ้นเล็ก ๆ ที่เย็นเยียบ มันคือ <strong>โทรศัพท์มือถือปุ่มกดรุ่นเก่า</strong> ของแม่</p>
+                <p>หน้าจอกระจกพลาสติกมีรอยขีดข่วนเต็มไปหมด เกมกดปุ่มเปิดเครื่องแต่หน้าจอยังคงมืดสนิท แบตเตอรี่คงจะเสื่อมสภาพไปนานแล้ว โทรศัพท์เครื่องนี้เก็บข้อมูลสายโทรเข้าและข้อความทั้งหมดที่เขาส่งหาแม่ รวมถึงสายไม่ได้รับสิบกว่าสายในวันเกิดเหตุวันนั้น วันที่เขาทำงานหนักเกินไปจนละเลยสิ่งสำคัญที่สุดในชีวิต</p>
+                <p>เขายังจำได้ดี วันนั้นแม่โทรหาเขาซ้ำแล้วซ้ำเล่า แต่เสียงโทรศัพท์กลับถูกบดบังด้วยเสียงนำเสนอความคืบหน้าของโครงการในห้องประชุมหรูหรา เมื่อเขาโทรกลับไปในตอนเย็น ปลายสายกลับไม่ใช่เสียงอ่อนโยนของแม่ แต่เป็นเสียงกระด้างและเร่งร้อนของพยาบาลประจำห้องฉุกเฉิน</p>
+                <p><em>“คุณเป็นญาติของคุณพิมลพรรณใช่ไหมคะ? ตอนนี้คนไข้หัวใจหยุดเต้นชั่วคราว...”</em></p>
+                <p>เกมหลับตาลงแน่น หยาดน้ำตาหยดหนึ่งร่วงเผาะลงบนหน้าจอมือถือเก่า ๆ เครื่องนั้น ถ้าเขาส่งมือถือเครื่องนี้ไปล่ะ? มันอาจจะเป็นสัญลักษณ์ของความรู้สึกผิดทั้งหมดที่เขาอยากจะปลดแอก แต่ในขณะเดียวกัน มันก็เป็นหลักฐานชิ้นเดียวที่เตือนใจว่าเขายังเป็นลูกชายที่เคยมีแม่อยู่ตรงนั้น หากปราศจากมัน เขาจะยังจดจำเสียงแจ้งเตือนและเบอร์โทรศัพท์ของแม่ได้อยู่ไหม?</p>
+                <p>เขาส่ายหน้าช้า ๆ วางโทรศัพท์เครื่องนั้นลงข้างเสื้อคาร์ดิแกน</p>
+                <p>ความรู้สึกยึดติดคล้ายโซ่ตรวนที่มองไม่เห็น มันพันธนาการเขาไว้กับสิ่งของทุกชิ้น ทุกอย่างดูสำคัญเกินกว่าจะปล่อยวางได้ เกมหยิบ <strong>สมุดโน้ตปกสีฟ้า</strong> ที่ขอบกระดาษเริ่มเปลี่ยนเป็นสีเหลืองขึ้นมาเปิดดู มันคือสมุดสูตรอาหารที่แม่เขียนด้วยลายมือขยุกขยิก มีรอยเปื้อนคราบน้ำมันและคราบซอสซึมอยู่ตามหน้ากระดาษ สูตรแกงส้ม สูตรไข่เจียวทรงเครื่อง สูตรแกงจืดเต้าหู้หมูสับ... เมนูธรรมดาแสนธรรมดาที่เขาเคยกินจนเบื่อ แต่ในวันนี้ กลับไม่มีร้านอาหารหรูหราแห่งใดในโลกที่จะทำรสชาติแบบนั้นได้อีกแล้ว</p>
+                <p>เขาลองพิจารณาของชิ้นอื่น ๆ:
+                <ul>
+                    <li>แก้วเซรามิกมีรอยบิ่นตรงขอบที่แม่ใช้ดื่มน้ำอุ่นทุกเช้า</li>
+                    <li>แว่นสายตายาวกรอบสีแดงที่ขาแว่นหลวมจนต้องใช้เทปกาวพันไว้</li>
+                    <li>อัลบั้มภาพถ่ายครอบครัวที่มีรูปเขาสมัยเด็ก ๆ ยืนร้องไห้โยเยโดยมีแม่คอยกอดปลอบอยู่ข้าง ๆ</li>
+                </ul>
+                </p>
+                <p>เกมนำสิ่งของเหล่านั้นมาวางเรียงรายกันบนพื้นห้องนั่งเล่น เขามองดูพวกมันสลับกับกล่องกระดาษเปล่าสีน้ำตาลที่วางเปิดฝาอยู่บนโต๊ะกินข้าว</p>
+                <p>เขาทดลองหยิบแว่นตากรอบสีแดงใส่ลงไปในกล่อง...<br>
+                ทว่าเพียงแค่สามวินาที หัวใจของเขาก็รู้สึกโหว่งเหวงราวกับกำลังจะทำร้ายแม่ เขาจึงรีบหยิบมันกลับคืนมาทันที</p>
+                <p>จากนั้นเขาลองเปลี่ยนเป็นหยิบแก้วน้ำมีรอยบิ่นใส่ลงไป...<br>
+                แต่สุดท้ายเขาก็ทนไม่ได้และหยิบมันออกคืนมาที่เดิม</p>
+                <p>ชั่วโมงแล้วชั่วโมงเล่าผ่านไปในความมืดที่คืบคลานเข้ามาพร้อมกับเสียงฝนภายนอกที่ยังคงเทกระหน่ำอย่างบ้าคลั่ง เกมตระหนักในที่สุดว่าไม่มีของชิ้นใดเลยที่เขาพร้อมจะสูญเสียมันไปจริง ๆ เขาไม่ได้อยากส่งพัสดุเพื่อปล่อยวาง... แต่ลึก ๆ แล้ว เขากำลังใช้กล่องใบนี้เป็นเพียงเครื่องมือเพื่อยื้อยุดและเหนี่ยวรั้งความทรงจำเหล่านั้นไว้ไม่ให้หายไปตามกาลเวลา</p>
+                <p>เขายังคงจมปลักอยู่กับอดีต ยังคงยึดติดอยู่กับความเศร้าโศกเพราะคิดว่าความเจ็บปวดคือสิ่งเดียวที่ยืนยันว่าเขายังรักแม่</p>
+                <p>เกมฟุบหน้าลงบนหัวเข่าปล่อยโฮออกมาอย่างไม่อาจกลั้นได้อีกต่อไป เสียงสะอื้นของชายหนุ่มวัยสามสิบสองปีดังแข่งกับเสียงสายฝนที่ตกลงมาไม่ขาดสาย ราวกับว่าท้องฟ้ากำลังร้องไห้เป็นเพื่อนเขา</p>
+                <p>กล่องพัสดุสีน้ำตาลบนโต๊ะยังคงเปิดฝาอยู่เช่นเดิม—มันว่างเปล่าและไร้น้ำหนัก เช่นเดียวกับหัวใจของเขาที่เว้าแหว่งและไม่มีสิ่งใดมาเติมเต็มได้มาตลอดห้าปีที่ผ่านมา</p>
+            </div>
+        </article>
+
+        <!-- Chapter 3 -->
+        <article class="chapter-section" id="chap3">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทที่ 3: เมล็ดพันธุ์ของหญิงชรา</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>สองวันถัดมา พายุฝนระลอกใหม่พัดผ่านเข้ามาในกรุงเทพฯ อีกครั้งในช่วงค่ำ</p>
+                <p>เสียงฝนตกกระทบกระจกหน้าต่างห้องทำงานดังเปาะแปะตั้งแต่ช่วงบ่ายแก่ ๆ และเมื่อถึงเวลาเลิกงาน ท้องฟ้าก็มืดมิดราวกับเป็นเวลาเที่ยงคืน เกมเดินกอดกระเป๋าเอกสารที่มีกล่องกระดาษสีน้ำตาลเปล่าพับแบนซุกซ่อนอยู่ข้างใน เขาเดินฝ่าละอองน้ำฝนย้อนกลับมาที่ถนนสายเดิม เลี้ยวเข้าซอยมืดและเปลี่ยวโชยกลิ่นชื้นแฉะ</p>
+                <p>และเช่นเคย แสงไฟสีส้มอบอุ่นจากโคมหน้าร้านบานไม้ก็สว่างเด่นขึ้นท่ามกลางความมืดมัว</p>
+                <p>เกมก้าวเข้าไปในร้าน เสียงระฆังทองเหลืองเหนือบานประตูดังกรุ๊งกริ๊งเบา ๆ ไอร้อนและกลิ่นชาอู่หลงแสนคุ้นเคยแผ่ซ่านเข้ามาต้อนรับทันที ทว่าในคืนนี้ ร้านส่งพัสดุลึกลับไม่ได้มีเพียงเขาและชายชราเจ้าของร้านเท่านั้น</p>
+                <p>ที่โต๊ะไม้ยาวหน้าเคาน์เตอร์ มีหญิงชราผมขาวโพลนสวมเสื้อคาร์ดิแกนสีฟ้าหม่นคนหนึ่งนั่งอยู่ บนตักของเธอมีถุงกระดาษใบเล็กที่ห่อหุ้มอย่างประณีตวางไว้ ชายชราเจ้าของร้านกำลังง่วนอยู่กับการเตรียมเชือกป่านและกาวแป้งเปียก</p>
+                <p>เกมยืนลังเลอยู่ใกล้ประตู ไม่แน่ใจว่าควรจะก้าวเข้าไปรบกวนหรือไม่ แต่ชายชราเงยหน้าขึ้นมาสบตาเขาแล้วพยักหน้าเล็กน้อย “เข้ามาสิคุณเกม มานั่งรอตรงนี้ก่อน”</p>
+                <p>เกมพยักหน้าและเดินไปนั่งลงบนเก้าอี้หวายที่ว่างอยู่มุมร้าน เขาขยับกล่องพับแบนในกระเป๋าเอกสารอย่างขัดเขิน ชายชราหันไปรินชาถ้วยใหม่ส่งมาให้เขา เกมรับไปถือไว้และกล่าวขอบคุณเบา ๆ</p>
+                <p>“พัสดุของคุณเสร็จเรียบร้อยแล้วนะ” ชายชราหันไปพูดกับหญิงชราพลางยกถุงกระดาษที่ติดป้ายเรียบร้อยขึ้นวางบนตาชั่งโบราณ เขาลดตุ้มน้ำหนักลงเพื่อบันทึกตัวเลข</p>
+                <p>หญิงชราส่งยิ้มบางเบาให้เจ้าของร้าน ใบหน้าของเธอเต็มไปด้วยริ้วรอยแห่งวัย ทว่าดวงตากลับดูปลอดโปร่งและสงบนิ่งอย่างประหลาด “ขอบใจมากนะหลงจู๊ นี่คงเป็นครั้งสุดท้ายที่ฉันจะได้ห่อของให้เขาแล้วล่ะ”</p>
+                <p>คำพูดของหญิงชราสะดุดความสนใจของเกมจนเขาต้องเงยหน้าขึ้นมอง “เอ่อ... ขอโทษนะครับ” เกมเอ่ยขึ้นอย่างอดรนทนไม่ได้ น้ำเสียงของเขาเต็มไปด้วยความลังเล “คุณยาย... กำลังจะส่งของให้สามีเหรอครับ?”</p>
+                <p>หญิงชราหันมามองเกมด้วยแววตาอ่อนโยน “ใช่แล้วจ้ะ พ่อหนุ่ม ยายกำลังจะส่งของไปให้ลุงเขาน่ะ ลุงเขาจากไปได้ปีกว่าแล้ว”</p>
+                <p>เกมเหลือบมองถุงกระดาษใบเล็กบนโต๊ะ มันมีขนาดไม่ใหญ่ไปกว่าฝ่ามือของเขาด้วยซ้ำ “ขอโทษที่ต้องถามนะครับ แต่... คุณยายส่งอะไรไปให้เหรอครับ? มันดูเล็กมากเลย”</p>
+                <p>หญิงชราหัวเราะเบา ๆ เสียงหัวเราะของเธออบอุ่นราวกับสายลมฤดูใบไม้ผลิ “เมล็ดพันธุ์ดอกฟอร์เก็ตมีน็อต (Forget-me-not) น่ะจ้ะ”</p>
+                <p>“เมล็ดดอกไม้เหรอครับ?” เกมทวนคำอย่างไม่เข้าใจ “ทำไมถึงเป็นเมล็ดดอกไม้ล่ะครับ? แล้วมันไม่สำคัญเกินกว่าจะส่งไปจนตัวเราไม่ได้เก็บไว้เหรอครับ?” เกมนึกถึงเสื้อคาร์ดิแกนและสมุดสูตรอาหารของแม่ที่เขาไม่อาจตัดใจปล่อยวางได้ขึ้นมาทันที</p>
+                <p>หญิงชราขยับตัวหันมาหาเกมอย่างเป็นกันเอง “ตอนที่ลุงเขายังอยู่ เราสองคนชอบช่วยกันทำสวนหลังบ้านมาก ลุงเขาเคยบอกว่าอยากปลูกดอกไม้สีฟ้าเล็ก ๆ พวกนี้ไว้รอบบ้าน แต่ยังไม่ทันได้ทำ เขาก็จับไข้แล้วจากไปเสียก่อน ยายเคยเก็บเมล็ดพันธุ์พวกนี้ไว้ในตลับเหล็กบนหัวเตียงอยู่นาน ทุกครั้งที่มองมัน ยายก็เอาแต่คิดถึงความหลัง คิดถึงวันที่เราหัวเราะด้วยกันในสวน และคิดถึงความรู้สึกผิดที่ยายไม่ได้ช่วยเขาพรวนดินในวันสุดท้าย”</p>
+                <p>เธอหยุดพูดไปครู่หนึ่ง เอื้อมมือเหี่ยวย่นมาลูบถุงกระดาษบนเคาน์เตอร์แผ่วเบา</p>
+                <p>“ยายเคยคิดว่า ยายต้องเก็บเมล็ดพันธุ์พวกนี้ไว้ตลอดชีวิตเพื่อเป็นตัวแทนของลุง แต่รู้ไหมพ่อหนุ่ม... การเก็บมันไว้ในตลับมืด ๆ บนหัวเตียงไม่ได้ทำให้ดอกไม้เบ่งบาน และไม่ได้ทำให้ใจของยายสงบลงเลย ยายเพิ่งเข้าใจว่า สิ่งที่ยายยึดติดไม่ใช่เมล็ดดอกไม้ แต่คือความเสียดายที่ไม่เคยได้ทำร่วมกัน”</p>
+                <p>“พัสดุชิ้นนี้ไม่ได้เกี่ยวกับสิ่งของหรอกนะพ่อหนุ่ม แต่มันคือการห่อหุ้มความรู้สึกต่างหาก เมื่อเราส่งมันออกไปแล้ว มือของเราก็จะว่างเปล่า... และมือที่ว่างเปล่านั้นแหละ ที่พร้อมจะโอบกอดปัจจุบันและก้าวเดินต่อไปได้”</p>
+                <p>ชายชราเจ้าของร้านมัดปมเชือกป่านเส้นสุดท้ายเสียงดังครืด ก่อนจะยกถุงพัสดุเข้าไปเก็บไว้บนชั้นวางไม้ด้านหลังอย่างระมัดระวัง</p>
+                <p>หญิงชราลุกขึ้นยืนช้า ๆ เธอหันมาบอกลาเกม “ขอให้พ่อหนุ่มหากล่องของตัวเองเจอในเร็ววันนะจ้ะ อย่าปล่อยให้ความเสียดายขังเราไว้ในสายฝนนานเกินไปเลย”</p>
+                <p>เธอก้าวเท้าเดินออกไปจากร้านพร้อมกับร่มคันหนึ่ง ทันทีที่ประตูเปิดออก ลมฝนพัดผ่านเข้ามาสั้น ๆ ก่อนจะปิดลงทิ้งความเงียบสงบไว้ตามเดิม เกมมองตามหลังเธอไปพร้อมกับความรู้สึกอัศจรรย์ใจ เขาสัมผัสได้ถึงความเบาสบายและสันติสุขที่แผ่ออกมาจากตัวหญิงชรา แม้ว่าเธอเพิ่งจะส่งของสำคัญชิ้นสุดท้ายไปให้สามีที่ไม่มีวันกลับมาก็ตาม</p>
+                <p>ชายชราเจ้าของร้านหันกลับมาประจันหน้ากับเกม ดวงตาฝ้าฟางจ้องมองตรงมายังกระเป๋าเอกสารของเขา “แล้วเธอล่ะคุณเกม? วันนี้กล่องของเธอมีอะไรใส่มาบ้างหรือยัง?”</p>
+                <p>เกมก้มหน้านิ่งอย่างละอายใจ เขาดึงกล่องกระดาษสีน้ำตาลพับแบนออกจากกระเป๋าและวางมันลงบนเคาน์เตอร์ “ยังเลยครับ... ผมรื้อของของแม่ทุกชิ้นแล้ว แต่ผมหยิบใส่กล่องไม่ได้สักชิ้นเดียว ผมรู้สึกเหมือนว่าถ้าผมส่งพวกมันไป ผมจะสูญเสียแม่ไปจริง ๆ และผมจะกลายเป็นลูกที่ไม่เหลือร่องรอยอะไรของแม่ไว้เลย”</p>
+                <p>ชายชรามองกล่องเปล่าที่แบนราบนั้น ก่อนจะเอ่ยด้วยน้ำเสียงเรียบแต่ลุ่มลึก</p>
+                <p>“ความยึดติดมักหลอกเราว่ามันคือความรักคุณเกม แต่แท้จริงแล้ว มันคือความหวาดกลัว... กลัวที่จะต้องยอมรับความจริงว่าไม่มีสิ่งใดคงอยู่ตลอดไป” ชายชราเดินไปจัดเรียงกล่องบนชั้น “เมล็ดพันธุ์ของยายคนเมื่อครู่เดินทางไปพร้อมกับความหวัง แต่กล่องของเธอมันหนักเกินไป... หนักเพราะมันเต็มไปด้วยความรู้สึกผิดและความเสียใจที่เธอพยายามกักขังไว้”</p>
+                <p>“จงกลับไปถามตัวเองใหม่เถอะคุณเกม... สิ่งที่แม่ของเธออยากได้ยินที่สุดในตอนนี้ คือความทุกข์ระทมของเธอ หรือการที่เธอสามารถยิ้มได้อีกครั้งกันแน่?”</p>
+                <p>คำถามของชายชราไม่มีคำตอบในทันที แต่มันดังสะท้อนอยู่ในความเงียบของค่ำคืนนั้น เกมรับกล่องกระดาษเปล่าพับแบนกลับมาถือไว้ เขารู้สึกว่าแม้กล่องจะยังว่างเปล่า ทว่ามุมมองของเขาต่อสิ่งของเหล่านั้นเริ่มเกิดรอยร้าวและเปลี่ยนแปลงไปทีละน้อย</p>
+            </div>
+        </article>
+
+        <!-- Chapter 4 -->
+        <article class="chapter-section" id="chap4">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทที่ 4: เด็กชายผู้เดินทางผิดเวลา</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>ความลังเลใจคล้ายกับสายหมอกที่แผ่คลุมปกคลุมจิตใจของเกมจนหาทางออกไม่เจอ</p>
+                <p>เขากลับมาที่ร้านส่งพัสดุลึกลับอีกครั้งในคืนวันศุกร์ที่ฝนตกพรำ ๆ คราวนี้เขาไม่ได้ตั้งใจจะมาส่งพัสดุ เพราะกล่องกระดาษสีน้ำตาลในกระเป๋ายังคงแบนราบและว่างเปล่าเหมือนเดิม ทว่าเขากลับมาเพียงเพราะต้องการหาที่พึ่งทางใจชั่วคราว ร้านค้าแห่งนี้เป็นสถานที่แห่งเดียวในโลกที่ยอมรับความอ่อนแอและความเสียใจของเขาโดยไม่มีข้อตัดสิน</p>
+                <p>เกมทรุดตัวนั่งลงบนเก้าอี้หวายตรงมุมร้าน ถ้วยชาอุ่น ๆ ถูกวางลงตรงหน้าเขาโดยไม่มีคำทักทายใด ๆ จากชายชราเจ้าของร้าน ทั้งสองต่างตกอยู่ในความเงียบงัน มีเพียงเสียงน้ำเดือดปุด ๆ ในกาและเสียงฝนตกสะท้อนมาแผ่วเบา</p>
+                <p>ทันใดนั้น เสียงระฆังประตูร้านก็ดังขึ้นอย่างกระโชกโฮกฮาก พร้อมกับการปรากฏตัวของร่างเล็ก ๆ ร่างหนึ่ง</p>
+                <p>เด็กผู้ชายตัวเล็กอายุประมาณแปดเก้าขวบวิ่งพรวดพราดเข้ามาในร้าน เนื้อตัวของเด็กน้อยเปียกปอนไปด้วยน้ำฝนจนผมเผ้าลู่ติดหนังศีรษะ เสื้อยืดลายการ์ตูนสีซีดมีคราบโคลนเปรอะเปื้อน เด็กชายหอบหายใจรัวเร็ว มือทั้งสองข้างกอดบางสิ่งไว้แนบอกอย่างหวงแหน ใบหน้าเล็ก ๆ นั้นอาบไปด้วยหยดน้ำฝน... และหยาดน้ำตา</p>
+                <p>“ช่วยผมด้วยครับ! ช่วยส่งของชิ้นนี้ให้พ่อผมที!” เด็กชายตะโกนขึ้นทันที ร่างกายสั่นสะท้านด้วยความหนาวและอารมณ์ที่พลุ่งพล่าน</p>
+                <p>ชายชราเจ้าของร้านค่อย ๆ วางกรรไกรลงบนเคาน์เตอร์ เขาไม่ได้แสดงอาการตกใจ ทว่าแววตากลับฉายแววหม่นหมองลงเล็กน้อย “ใจเย็น ๆ ก่อนไอ้หนู ค่อย ๆ พูด”</p>
+                <p>เด็กชายก้าวสับไว ๆ เข้ามาที่เคาน์เตอร์ ยื่นสิ่งของในอ้อมแขนออกแสดง มันคือ <strong>ภาพวาดลายเส้นดินสอสีบนกระดาษเอสี่</strong> ที่ยับย่นและเปียกชื้นเล็กน้อย ภาพนั้นวาดรูปครอบครัวสามคนยืนจับมือกันใต้ดวงอาทิตย์สีเหลืองดวงโต มีลายมือเด็กเขียนภาษาไทยขยุกขยิกตรงมุมภาพว่า <em>"รักพ่อที่สุดในโลก"</em> และด้านบนภาพมี <strong>รถของเล่นพลาสติกสีแดงคันเล็ก</strong> ที่ล้อหลุดไปข้างหนึ่งถูกวางทับไว้</p>
+                <p>“ส่งภาพนี้กับรถของเล่นคันนี้ให้พ่อผมทีครับ พ่ออยู่ไกลมาก แม่บอกว่าเรายังไปหาพ่อไม่ได้ พ่อเพิ่งหนีออกจากบ้านไปเมื่อเช้าหลังจากทะเลาะกับแม่รุนแรง... ผม... ผมขว้างรถของเล่นคันนี้ใส่พ่อก่อนพ่อจะเดินออกไป ผมอยากขอโทษพ่อ ช่วยส่งไปให้พ่อทีนะครับ!” เด็กชายสะอื้นไห้จนตัวโยน</p>
+                <p>เกมจ้องมองเด็กชายคนนั้นด้วยความรู้สึกจุกในอก ภาพของตัวเองในวัยเด็กทับซ้อนขึ้นมาทันที ความเสียใจหลังการทะเลาะเบาะแว้งกับคนที่รักเป็นสิ่งที่เจ็บปวดเสมอ โดยเฉพาะเมื่อคิดว่านั่นอาจเป็นการจากลา</p>
+                <p>ชายชราเจ้าของร้านมองดูภาพวาดและรถของเล่นคันสั้น ก่อนจะช้อนสายตาขึ้นสบตาเด็กชายช้า ๆ “พ่อของเธอ... ยังมีชีวิตอยู่ใช่ไหม?”</p>
+                <p>เด็กชายพยักหน้ารับรัว ๆ “ครับ พ่อยังอยู่ พ่อไปทำงานที่ต่างจังหวัด พ่อไม่ยอมรับสายแม่เลย ผมโทรไปพ่อก็ไม่รับ ผมอยากส่งภาพนี้ไปง้อพ่อ”</p>
+                <p>ชายชราถอนหายใจยาวอย่างเชื่องช้า เขาส่ายหน้าเบา ๆ “ฉันรับส่งของชิ้นนี้ให้เธอไม่ได้หรอกไอ้หนู”</p>
+                <p>คำปฏิเสธนั้นทำให้เด็กชายเบิกตากว้าง น้ำตาทะลักไหลออกมามากกว่าเดิม “ทำไมล่ะครับ? ป้ายหน้าร้านบอกว่ารับส่งพัสดุถึงคนที่ไม่มีที่อยู่นี่ครับ! ตอนนี้พ่อไม่มีบ้านอยู่แล้ว พ่อไม่อยู่บ้านเราแล้ว ส่งให้พ่อไม่ได้เหรอครับ!”</p>
+                <p>ชายชราเอื้อมมือไปกุมมือสั่นเทาของเด็กชายไว้อย่างอ่อนโยน น้ำเสียงของเขาเปลี่ยนเป็นอ่อนโยนลงทว่ายังคงเฉียบขาดในที “ไม่มีที่อยู่ของร้านนี้ หมายถึงคนที่ไม่มีที่อยู่บนโลกใบนี้แล้วเท่านั้นไอ้หนู พ่อของเธอยังมีลมหายใจ เขายังเดินอยู่ใต้ท้องฟ้าผืนเดียวกันนี้ เขายังได้ยินเสียงลมพัด และยังมีหูที่สามารถฟังเสียงของเธอได้”</p>
+                <p>“แต่พ่อไม่ยอมฟังผม...” เด็กชายสะอื้น</p>
+                <p>“เขายังไม่ฟังตอนนี้ ไม่ได้แปลว่าเขาจะไม่มีวันฟังตลอดกาล” ชายชรากล่าวพลางขยับนิ้วชี้ไปที่อกเสื้อของเด็กชาย “หากฉันรับของชิ้นนี้จากเธอและส่งมันออกไปตามกฎของร้าน นั่นหมายความว่าเธอได้ยอมแพ้และเลือกที่จะปฏิบัติต่อพ่อเหมือนเขาไม่มีตัวตนอยู่บนโลกนี้อีกต่อไปแล้ว เธออยากให้พ่อหายไปจริง ๆ อย่างนั้นเหรอ?”</p>
+                <p>เด็กชายรีบส่ายหัวรัวเร็วด้วยความตื่นตระหนก “ไม่ครับ! ผมอยากให้พ่อกลับมา”</p>
+                <p>“ถ้าอย่างนั้น จงเก็บภาพวาดและรถของเล่นคันนี้ไว้” ชายชราส่งของทั้งสองชิ้นกลับคืนสู่อ้อมแขนของเด็กชาย “เมื่อพายุฝนคืนนี้ซาลง จงกลับไปหาแม่ บอกแม่ว่าเธออยากโทรหาพ่ออีกครั้ง หรือรอจนกว่าจะมีโอกาสได้เดินทางไปพบเขาด้วยตัวเอง คนที่ยังมีชีวิตอยู่ ต่อให้โกรธกันแค่ไหน ต่อให้อยู่ไกลกันแสนไกล ก็ยังมีโอกาสพูดคุยปรับความเข้าใจกันได้เสมอ อย่าเพิ่งรีบร้อนส่งพัสดุผ่านประตูบานนี้เลย... เพราะร้านนี้รับส่งเฉพาะของที่ส่งแล้วไม่มีวันได้รับคำตอบกลับมาอีกตลอดกาล”</p>
+                <p>“คนที่ยังรับสายอยู่... ไม่ต้องส่งพัสดุหรอกนะ”</p>
+                <p>เด็กชายนิ่งเงียบไป หยดน้ำตาเริ่มเหือดแห้งเมื่อได้รับคำอธิบายที่ลึกซึ้ง เด็กน้อยก้มมองภาพวาดและรถของเล่นในมือ ก่อนจะเงยหน้าขึ้นพยักหน้าอย่างช้า ๆ “เข้าใจแล้วครับ... ผมจะเก็บไว้ให้พ่อด้วยตัวเอง”</p>
+                <p>“ดีมาก กลับบ้านไปหาแม่เถอะ ปล่อยให้ผู้ใหญ่เขาจัดการเรื่องของเขา หน้าที่ของเธอคือรักพ่อรักแม่ และบอกพวกเขาในวันที่ยังมีโอกาส” ชายชราตบไหล่เด็กชายเบา ๆ</p>
+                <p>เด็กชายกล่าวขอบคุณชายชราเสียงอ่อย ก่อนจะหมุนตัววิ่งออกไปจากร้านฝ่าสายฝนที่เริ่มซาลง</p>
+                <p>เกมนั่งนิ่งราวกับถูกสาป คำพูดของชายชราที่ว่า <em>“คนที่ยังรับสายอยู่ ไม่ต้องส่งพัสดุ”</em> และ <em>“บอกพวกเขาในวันที่ยังมีโอกาส”</em> ดังก้องอยู่ในหัวสมองของเขาซ้ำแล้วซ้ำเล่าราวกับเสียงกลองศึกที่ตีเตือนสติ</p>
+                <p>เขากำลังพยายามทำอะไรอยู่? เขากำลังพยายามส่งพัสดุเพื่อชดเชยคำบอกรักและคำขอโทษที่เขาส่งไม่ถึงแม่ผู้ล่วงลับ แต่ในขณะเดียวกัน... เขากลับเพิกเฉยต่อพ่อของตัวเองที่ยังมีชีวิตอยู่</p>
+                <p>หลังจากการจากไปของแม่ ความโศกเศร้าทำให้ความสัมพันธ์ระหว่างเขากับพ่อพังทลายลง ต่างคนต่างโทษตัวเองและโทษซึ่งกันและกัน จนในที่สุดเขาก็เลือกที่จะย้ายออกมาอยู่คอนโดมิเนียมคนเดียว และไม่เคยติดต่อหาพ่ออีกเลยตลอดสามปีหลังสุด พ่อเคยพยายามโทรหาเขา ส่งข้อความแสดงความห่วงใยหาเขาในวันเกิด ทว่าเกมกลับเลือกที่จะกดปุ่มตัดสายและละเลยข้อความเหล่านั้นไปอย่างเย็นชา</p>
+                <p>เขากำลังทำตัวเหมือนพ่อของเขา “ไม่มีที่อยู่” ทั้ง ๆ ที่พ่อยังคงอยู่ที่บ้านหลังเก่า รอปาฏิหาริย์ที่ลูกชายจะยอมยกโทษและหันกลับไปคุยด้วย</p>
+                <p>เกมก้มมองมือตัวเองที่กำลังสั่นเทา ความรู้สึกผิดรูปใหม่ที่น่ากลัวกว่าเดิมผุดขึ้นมาในใจ—ความรู้สึกผิดที่เขากำลังจะปล่อยให้ประวัติศาสตร์ซ้ำรอย หากวันใดวันหนึ่งพ่อของเขาต้องจากไปโดยที่เขายังไม่ได้ปรับความเข้าใจกัน เขาจะต้องแบกรับกล่องกระดาษสีน้ำตาลใบที่สองไปชั่วชีวิตอย่างนั้นหรือ?</p>
+                <p>“ใจพร้อมที่จะก้าวเดินต่อหรือยังคุณเกม?” เสียงของชายชราดึงเขากลับมาจากห้วงความคิด</p>
+                <p>เกมเงยหน้าขึ้น ดวงตามีประกายของความตื่นรู้ “ครับ... ผมเข้าใจแล้ว” เขากลืนน้ำลายอึกใหญ่ “ผมมัวแต่เสียใจกับคนที่จากไป จนลืมคิดถึงคนที่ยังอยู่ข้างหลัง”</p>
+                <p>ชายชราพยักหน้าพร้อมรอยยิ้มที่หาได้ยาก “การระลึกถึงผู้จากไปเป็นสิ่งที่ดี แต่การละเลยผู้ที่ยังมีชีวิตอยู่คือความโง่เขลาอันใหญ่หลวง เวลาของคนที่นี่เหลือน้อยลงทุกที แต่เวลาของคนที่นั่นยังเดินอยู่ จงรีบส่งคำพูดที่ควรพูด... ในวันที่ยังมีคนรอฟังเถอะ”</p>
+                <p>เกมลุกขึ้นยืน เขากระชับกระเป๋าเอกสารแน่นด้วยความรู้สึกที่เปลี่ยนไปอย่างสิ้นเชิง เขาไม่ได้รู้สึกหนักอึ้งเหมือนเดิมอีกแล้ว แต่มีความหวังและเป้าหมายใหม่ที่ชัดเจนขึ้นผุดขึ้นมาท่ามกลางสายฝนที่กำลังจะหยุดตก</p>
+            </div>
+        </article>
+
+        <!-- Chapter 5 -->
+        <article class="chapter-section" id="chap5">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทที่ 5: จดหมายและสูตรไข่เจียว</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>คืนนั้น เกมกลับมาที่คอนโดมิเนียมของเขาด้วยความรู้สึกที่ต่างไปจากทุกวัน</p>
+                <p>เขามองห้องนั่งเล่นที่เต็มไปด้วยข้าวของกระจัดกระจายของแม่ซึ่งเขาเคยรื้อออกมาวางเรียงรายไว้เมื่อคืนก่อน ทว่าในครั้งนี้ แววตาของเขาไม่ได้เต็มไปด้วยความโศกเศร้าท้อแท้แบบเดิมอีกต่อไป เขานั่งลงบนพื้นห้อง สูดลมหายใจลึก แล้วเริ่มต้นเลือกสิ่งของที่จะบรรจุลงในกล่องกระดาษสีน้ำตาลอย่างตั้งใจ</p>
+                <p>ของชิ้นแรกคือ <strong>กระดาษแผ่นหนึ่งที่เขาคัดลอกสูตร "ไข่เจียวทรงเครื่อง" ของแม่</strong></p>
+                <p>เมนูง่าย ๆ ที่มีหอมใหญ่ มะเขือเทศ และหมูสับสับละเอียด เคล็ดลับที่แม่เขียนกำกับไว้ด้วยปากกาสีแดงคือ <em>*“ต้องบีบมะนาวครึ่งซีกก่อนทอดเพื่อให้ไข่ฟูและนุ่ม”*</em> เกมไม่ได้ส่งสมุดบันทึกสูตรอาหารทั้งเล่มไป เพราะเขารู้ดีว่าสูตรอาหารเหล่านั้นควรจะได้รับการสืบทอดและปรุงขึ้นใหม่ในโลกฝั่งนี้ แต่เขาส่งแผ่นที่คัดลอกนี้ไปเพื่อบอกแม่ว่าเขาจำรสชาติที่แม่ตั้งใจทำได้ดีเสมอ</p>
+                <p>ของชิ้นที่สองคือ <strong>ซองเงินเดือนใบแรกของเขา</strong></p>
+                <p>ซองกระดาษสีขาวที่ตัวหนังสือพิมพ์เริ่มเลือนราง มันคือซองเงินเดือนใบแรกที่เขาได้จากการทำงานบริษัทเมื่อสิบปีก่อน วันนั้นเขาจำได้ว่าเขายื่นซองนี้ให้แม่ด้วยความภาคภูมิใจ และแม่ก็กอดเขาแน่นด้วยความดีใจจนน้ำตาคลอ แม่เก็บซองเงินเดือนนี้ไว้ในตู้เซฟใบเล็กเหมือนมันเป็นสมบัติล้ำค่าที่สุดในชีวิต เกมพบมันหลังจากที่แม่เสียชีวิตไปแล้วและเก็บรักษาไว้มาตลอด การส่งสิ่งนี้คืนให้แม่เปรียบเสมือนการส่งคำขอบคุณที่แม่ได้เลี้ยงดูและเฝ้ามองเขาจนเติบโตเป็นผู้ใหญ่ที่ดูแลตัวเองได้</p>
+                <p>และของชิ้นสุดท้าย... คือ <strong>จดหมายลายมือเขียนยาวหนึ่งหน้ากระดาษ</strong></p>
+                
+                <div class="letter-box">
+                    <p>ถึง แม่ พิมลพรรณ,</p>
+                    <p>ห้าปีแล้วนะแม่ที่แม่จากไปโดยไม่มีโอกาสได้ยินคำบอกลาจากผม ผมขอโทษสำหรับสายโทรศัพท์ในวันสุดท้ายที่ผมไม่ได้กดรับ ผมขอโทษที่มัวแต่ทำแต่งานจนลืมไปว่าเวลาของแม่ไม่ได้อยู่รอผมตลอดไป</p>
+                    <p>ผมเคยคิดว่าการเก็บของทุกชิ้นของแม่ไว้ในห้องมืด ๆ จะทำให้ผมยังมีแม่อยู่ใกล้ ๆ แต่ตอนนี้ผมรู้แล้วว่านั่นเป็นเพียงความเห็นแก่ตัวของผมที่ไม่อยากยอมรับความจริง ความทรงจำที่ดีที่สุดเกี่ยวกับแม่มันไม่ได้สถิตอยู่ในเสื้อหนาวหรือในโทรศัพท์เก่า ๆ หรอกครับ แต่มันอยู่ในหัวใจของผม ในทุกคำสอน ในทุกรสชาติอาหารที่แม่เคยทำให้กิน</p>
+                    <p>แม่ไม่ต้องเป็นห่วงผมแล้วนะ หลังจากนี้ผมจะดูแลตัวเองให้ดี จะยิ้มให้กว้างขึ้น และที่สำคัญที่สุด... วันพรุ่งนี้ผมจะโทรหาพ่อแล้วครับ ผมจะไม่ยอมให้ความเสียใจขังผมไว้ในสายฝนอีกแล้ว</p>
+                    <p style="text-align: right; margin-top: 30px;">รักและคิดถึงแม่ที่สุดในโลก<br>เกม</p>
+                </div>
+
+                <p>เกมพับจดหมายใส่ซอง บรรจุสิ่งของทั้งสามชิ้นลงในกล่องสีน้ำตาลอย่างทะนุถนอม เขามัดเชือกป่านรอบกล่องอย่างประณีตด้วยตัวเอง สัมผัสถึงน้ำหนักของมันที่ครั้งนี้ไม่รู้สึกหนักอึ้งอีกต่อไป แต่กลับให้ความรู้สึกมั่นคงและอบอุ่น</p>
+                <p>พายุฝนยังคงตกลงมาอย่างต่อเนื่องเมื่อเกมเดินกลับมาถึงซอยแคบ ๆ แห่งเดิม แสงไฟสีส้มละมุนของร้านส่งพัสดุลึกลับยังคงเปิดต้อนรับเขาอยู่</p>
+                <p>เขาก้าวเข้าไปในร้าน ชายชราเจ้าของร้านเงยหน้าขึ้นมองกล่องกระดาษสีน้ำตาลในมือของเกม แววตาของชายชราฉายความพึงพอใจและอบอุ่น “ดูเหมือนเธอจะตัดสินใจได้แล้วสินะคุณเกม”</p>
+                <p>“ครับ” เกมวางกล่องลงบนเคาน์เตอร์ “ผมพร้อมจะส่งมันแล้วครับ”</p>
+                <p>ชายชรารับกล่องไป เขาตรวจดูเงื่อนเชือกป่านที่มัดไว้ ก่อนจะหยิบพู่กันจีนจุ่มหมึกดำเข้ม “ส่งถึงใครล่ะ?”</p>
+                <p>“พิมลพรรณ ครับ... ส่งถึงแม่” เกมตอบเสียงชัดเจนและมั่นคง</p>
+                <p>ชายชราเขียนชื่อผู้รับลงบนป้ายกระดาษแผ่นเล็กด้วยลายมือบรรจงว่า <em>"ถึง แม่ (พิมลพรรณ) - จาก ลูกชาย"</em> จากนั้นเขาก็นำกล่องพัสดุไปวางลงบนตาชั่งโบราณ เขาลดตุ้มน้ำหนักเพื่อชั่งน้ำหนักพัสดุเป็นครั้งสุดท้าย</p>
+                <p>“ค่าส่งพัสดุชิ้นนี้... คือการยอมรับความจริงว่าเธอจะไม่ได้รับของชิ้นนี้กลับคืนมา และจะไม่มีคำตอบรับใด ๆ ส่งกลับมาจากผู้รับชิ้นนี้ตลอดกาล เธอพร้อมที่จะจ่ายหรือไม่?” ชายชราถามตามขั้นตอนของกฎข้อที่สามและสี่</p>
+                <p>“ผมพร้อมครับ” เกมตอบ</p>
+                <p>ชายชราพยักหน้า เขายกกล่องพัสดุสีน้ำตาลของเกมขึ้นไปวางบนชั้นวางไม้ด้านหลัง เคียงข้างกับกล่องพัสดุอื่น ๆ ของผู้ล่วงลับคนก่อน ๆ</p>
+                <p>เกมนิ่งยืนรออยู่หน้าเคาน์เตอร์ครู่หนึ่ง ลึก ๆ ในใจของเขายังคงแอบคาดหวังริบหรี่ว่าจะเกิดปาฏิหาริย์บางอย่างขึ้น เช่น มีลมพัดหวีดหวิวเข้ามาในร้าน แสงไฟวูบวาบ หรือเสียงแผ่วเบาของแม่ดังแว่วมาบอกว่าเธอได้รับจดหมายแล้ว...</p>
+                <p>ทว่ารอบตัวกลับเงียบสงบ ไม่มีปาฏิหาริย์ใด ๆ เกิดขึ้น เสียงฝนภายนอกยังคงตกสม่ำเสมอ แสงตะเกียงยังคงนิ่งสนิท และชายชราก็เพียงแต่เดินกลับมารินชาอุ่น ๆ ให้เขาอีกถ้วย</p>
+                <p>“ไม่มีอะไรเกิดขึ้นงั้นเหรอครับ?” เกมเอ่ยถามเสียงเบา ทว่าไม่ได้เต็มไปด้วยความผิดหวัง</p>
+                <p>ชายชราส่งถ้วยชาให้เขา “นี่คือโลกความจริงคุณเกม ที่นี่ไม่ใช่ร้านเวทมนตร์ที่จะชุบชีวิตใครได้ หรือสร้างปาฏิหาริย์ลวงตา สิ่งเดียวที่ร้านนี้ทำคือการส่งสารที่เธอมีต่อผู้จากไป ส่วนปาฏิหาริย์ที่แท้จริงน่ะ... มันเกิดขึ้นในหัวใจของเธอเองต่างหาก”</p>
+                <p>เกมมองถ้วยชาในมือ ความรู้สึกโล่งและเบาสบายอย่างประหลาดแผ่ซ่านไปทั่วอก ราวกับภูเขาลูกใหญ่ที่เคยกดทับหน้าอกของเขามาตลอดห้าปีได้มลายหายไปในพริบตา เขายิ้มออกมาเป็นครั้งแรกในรอบหลายปี ยิ้มที่มาจากก้นบึ้งของหัวใจจริง ๆ</p>
+                <p>“ขอบคุณครับหลงจู๊” เกมยกชาขึ้นดื่มจนหมดถ้วย “ผมเข้าใจแล้วครับ”</p>
+                <p>เขาบอกลาชายชราแล้วก้าวเท้าออกไปนอกร้าน ทันทีที่ประตูปิดลง เบื้องหลังของเขากลับเป็นกำแพงปูนเปลือยเปล่าเช่นเดิม ทว่าเกมไม่ได้สนใจหันกลับไปมองอีกแล้ว เขาเดินหน้าฝ่าสายฝนที่เริ่มซาลงเพื่อมุ่งหน้ากลับบ้านด้วยหัวใจที่พร้อมจะเริ่มต้นชีวิตใหม่อย่างแท้จริง</p>
+            </div>
+        </article>
+
+        <!-- Chapter 6 -->
+        <article class="chapter-section" id="chap6">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทที่ 6: คำพูดที่ส่งถึง</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>เช้าวันรุ่งขึ้น ท้องฟ้าหลังพายุฝนผ่านพ้นกลับมาสดใสสว่างตาอย่างที่เกมไม่ได้เห็นมานานหลายปี</p>
+                <p>แสงแดดยามเช้าสีทองอ่อน ๆ ส่องผ่านผ้าม่านโปร่งแสงเข้ามาในห้องนั่งเล่น ละอองฝุ่นเล็ก ๆ ปลิวว่อนอยู่ในลำแสงราวกับกำลังร่ายรำ เกมลืมตาตื่นขึ้นมาด้วยความรู้สึกกระปรี้กระเปร่าและเบาสบายในร่างกายอย่างแปลกประหลาด เขาลุกขึ้นจากเตียง เดินตรงไปเปิดหน้าต่างบานกว้างเพื่อรับสายลมเช้าที่สดชื่นและมีกลิ่นดินชื้นจาง ๆ พัดเข้ามาแทนที่กลิ่นอับชื้นในห้อง</p>
+                <p>เขาหันกลับมามองห้องนั่งเล่น ข้าวของของแม่ที่เคยกระจัดกระจายอยู่ตามพื้นถูกเขาเก็บจัดระเบียบใส่กล่องพลาสติกใสอย่างเรียบร้อยและนำไปวางไว้ที่มุมห้องเก็บของอย่างเหมาะสม ครั้งนี้ข้าวของเหล่านั้นไม่ได้เป็นตัวแทนของความเศร้าโศกหรือเครื่องพันธนาการอีกต่อไป ทว่าพวกมันกลายเป็นเพียงกล่องบันทึกความทรงจำแสนอบอุ่นที่เขาจะเปิดดูด้วยความยิ้มแย้มในวันที่คิดถึง</p>
+                <p>เกมเดินเข้าครัว เขาตัดสินใจหยิบไข่ไก่ หอมใหญ่ มะเขือเทศ และหมูสับออกจากตู้เย็น</p>
+                <p>เขากระเทาะไข่ไก่ใส่ถ้วย ซอยหอมใหญ่และมะเขือเทศอย่างตั้งใจพลางนึกถึงเคล็ดลับที่แม่เขียนทิ้งไว้ในกระดาษแผ่นนั้น เขาบีบมะนาวลงไปครึ่งซีกก่อนจะตีไข่จนฟูฟ่อง ตั้งกระทะใส่น้ำมันจนร้อนจัด แล้วจึงเทไข่ลงไป เสียงไข่เจียวทรงเครื่องฟูฟ่องปะทะน้ำมันร้อน ๆ ดังฟู่พร้อมกับกลิ่นหอมกรุ่นที่อบอวลไปทั่วห้องครัว... กลิ่นอายแสนคุ้นเคยที่สูญหายไปนานถึงห้าปี</p>
+                <p>เกมตักไข่เจียวทรงเครื่องสีเหลืองทองฟูนุ่มวางบนข้าวสวยร้อน ๆ เขารับประทานมันคำแรก รสชาติอมเปรี้ยวนิด ๆ และความหวานธรรมชาติจากมะเขือเทศและหอมใหญ่ซึมซาบเข้าสู่ลิ้น มันคือรสชาติไข่เจียวของแม่แบบไม่มีผิดเพี้ยน เกมเคี้ยวข้าวช้า ๆ ปล่อยให้น้ำตาแห่งความสุขไหลซึมออกมาเงียบ ๆ ตอนนี้เขาตระหนักแล้วว่า แม้แม่จะไม่อยู่ตรงนี้แล้ว แต่ความรักของแม่จะยังคงมีชีวิตอยู่ในทุกคำที่เขาเคี้ยว ในทุกรสชาติที่เขาจดจำได้เสมอ</p>
+                <p>เมื่อมื้อเช้าสิ้นสุดลง เกมล้างจานชามจนสะอาดเรียบร้อย เขาหยิบสมาร์ตโฟนขึ้นมานั่งบนโซฟาตัวยาว</p>
+                <p>เขาสูดลมหายใจเข้าลึก หัวใจเริ่มเต้นระรัวด้วยความประหม่าขณะที่เขานิ้วโป้งเลื่อนหาชื่อในบันทึกโทรศัพท์... คำสั้น ๆ คำเดียวที่เขาไม่ได้กดโทรออกมาร่วมสามปี</p>
+                <blockquote>“พ่อ”</blockquote>
+                <p>เกมนิ่งมองตัวอักษรนั้นอยู่ครู่หนึ่ง ความทรงจำเกี่ยวกับการตัดสายและการไม่ยอมตอบข้อความของพ่อผุดขึ้นมาเตือนใจ แต่คำสอนของชายชราเจ้าของร้านส่งพัสดุดังกระตุ้นอยู่ในใจทันที: <em>“คนที่ยังรับสายอยู่ ไม่ต้องส่งพัสดุหรอกนะ... จงรีบส่งคำพูดที่ควรพูด ในวันที่ยังมีคนรอฟังเถอะ”</em></p>
+                <p>เกมหลับตาลง ตัดสินใจกดปุ่มโทรออกทันที</p>
+                <p>เสียงสัญญาณรอสายดังขึ้นเป็นจังหวะสม่ำเสมอ... <em>ตื๊ด... ตื๊ด...</em> แต่ละวินาทีที่ผ่านไปช่างยาวนานราวกับเวลาเดินช้าลง เกมรู้สึกถึงความชื้นที่ฝ่ามือ เขาเริ่มกังวลว่าพ่ออาจจะโกรธจนไม่ยอมรับสาย หรืออาจจะเปลี่ยนเบอร์ไปแล้ว</p>
+                <p>ทว่าก่อนที่สัญญาณครั้งที่สี่จะจบลง ปลายสายก็ถูกกดรับอย่างรวดเร็ว</p>
+                <p>เกิดความเงียบงันขึ้นชั่วขณะหนึ่ง ก่อนที่จะมีเสียงแหบพร่าและสั่นเครือเล็กน้อยของชายวัยหกสิบกว่าปีดังขึ้นมา “...เกมเหรอ?”</p>
+                <p>หัวจุกขึ้นมาที่ลำคอของเกมทันที น้ำตาของเขาเอ่อคลอเบ้าชั่วพริบตา น้ำเสียงของพ่อยกย่องความประหลาดใจและความวิตกกังวลไว้อย่างปิดไม่มิด “ครับพ่อ... ผมเองครับ” เกมเค้นเสียงตอบกลับไป</p>
+                <p>“เกม... ลูกเป็นอะไรหรือเปล่า? มีเรื่องด่วนอะไรไหมลูก? สบายดีหรือเปล่า?” พ่อถามรัวเร็วด้วยความเป็นห่วง น้ำเสียงเต็มไปด้วยความตระหนกเพราะเกมไม่เคยโทรหาพ่อก่อนเลยตลอดหลายปีที่ผ่านมา</p>
+                <p>เกมพยายามควบคุมเสียงไม่ให้สั่นเครือ “ผมสบายดีครับพ่อ ไม่มีเรื่องร้ายแรงอะไรหรอกครับ... ผมแค่...” เกมหยุดหายใจชั่วครู่ รวบรวมความกล้าทั้งหมดที่เขามี “ผมแค่คิดถึงพ่อครับ”</p>
+                <p>ปลายสายเงียบกริบไปทันที เงียบจนเกมได้ยินเสียงลมหายใจสั่น ๆ ของพ่อผ่านลำโพงโทรศัพท์ ความเงียบนั้นไม่ได้ยาวนานทว่าลึกซึ้งสะเทือนใจ</p>
+                <p>“...เออ... สบายดีก็ดีแล้วลูก พ่อ... พ่อก็สบายดี” พ่อตอบกลับมาเสียงสั่นเครือคล้ายกำลังกลั้นน้ำตาอยู่เช่นกัน “พ่อดีใจนะที่แกโทรมา”</p>
+                <p>“พ่อครับ...” เกมเอ่ยขึ้นต่อ “วันเสาร์อาทิตย์นี้ พ่อว่างไหมครับ? ผม... ผมอยากกลับบ้านไปหาพ่อ ไปกินข้าวเย็นด้วยกันนะครับ”</p>
+                <p>“ว่างสิลูก ว่างเสมอเลย!” พ่อตอบรับทันทีโดยไม่ต้องคิด “แกอยากกินอะไรล่ะ? เดี๋ยวพ่อจะเตรียมทำแกงส้มชะอมกุ้งที่แกชอบไว้รอเลยนะ ดีไหม?”</p>
+                <p>“ดีครับพ่อ... แล้วก็...” เกมน้ำตาร่วงอาบแก้ม ทว่ามันคือน้ำตาของการปลดปล่อย “ผมรักพ่อนะครับ”</p>
+                <p>พ่อนิ่งไปครู่หนึ่ง ก่อนจะสะอื้นเบา ๆ ออกมา “อืม... พ่อก็รักแกนะเกม พ่อรักแกมากนะลูก”</p>
+                <p>เกมคุยต่อกับพ่ออีกสองสามประโยคสั้น ๆ นัดแนะเวลาเดินทาง ก่อนจะกดวางสายลง เขาวางโทรศัพท์ไว้ข้างตัวแล้วเอามือปิดหน้า ร้องไห้ออกมาอย่างเงียบเชียบ แต่มันไม่ใช่น้ำตาแห่งความทุกข์ระทมอีกต่อไป มันคือน้ำตาแห่งการเยียวยาและการเริ่มต้นใหม่</p>
+                <p>เขารู้สึกเหมือนพันธนาการสุดท้ายที่ตรึงเขาไว้กับพายุฝนห้าปีได้หลุดออกจนหมดสิ้น ท้องฟ้าภายนอกหน้าต่างดูใสกระจ่างและงดงามกว่าวันไหน ๆ เกมลุกขึ้นยืนบิดขี้เกียจ มองออกไปที่ท้องถนนเบื้องล่างด้วยดวงตาที่เป็นประกาย</p>
+                <p>บางครั้ง สิ่งที่ควรรีบส่งที่สุด... ไม่ใช่พัสดุผ่านประตูบานนั้น</p>
+                <p>แต่เป็นคำพูดที่แสนเรียบง่าย... ในวันที่ยังมีคนรอฟัง</p>
+            </div>
+        </article>
+
+        <!-- Epilogue -->
+        <article class="chapter-section" id="epilogue">
+            <div class="chapter-header">
+                <h2 class="chapter-title">บทส่งท้าย: สายฝนครั้งถัดไป</h2>
+                <div class="chapter-divider">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p>ฤดูกาลผันผ่านไปตามครรลองของมัน ลมร้อนพัดผ่านไป และลมหนาวก็โชยมาเยือนอยู่ชั่วครู่ ก่อนที่พายุฝนจะเวียนกลับมาสู่เมืองใหญ่อีกครั้ง</p>
+                <p>ในค่ำคืนที่สายฝนตกกระหน่ำอย่างไม่มีเค้าลางว่าจะหยุดลงง่าย ๆ เสียงน้ำฟ้ากระทบหลังคาสังกะสีเก่าแก่ยังคงส่งเสียงเป็นจังหวะสม่ำเสมอ บรรยากาศรอบตัวเต็มไปด้วยความชื้นเย็นยะเยือกและกลิ่นดินชื้นแฉะ ถนนหนทางพลุกพล่านไปด้วยผู้คนที่เร่งรีบเดินทางกลับบ้านเพื่อหาความอบอุ่น</p>
+                <p>ทว่าในตรอกซอกซอยเล็ก ๆ ที่หลบซ่อนตัวจากสายตาผู้คน ร้านส่งพัสดุหลังน้อยยังคงตั้งตระหนักอยู่อย่างเงียบสงบ</p>
+                <p>แสงไฟสีส้มอบอุ่นจากโคมตะเกียงหน้าร้านสว่างไสวขึ้นอีกครั้ง รอยแยกของบานประตูไม้เผยให้เห็นไอร้อนสีขาวจาง ๆ ที่ลอยขึ้นสู่เบื้องบน ชายชราเจ้าของร้านขยับตัวลุกขึ้นจากเก้าอี้หวายอย่างเชื่องช้า เขาสวมเสื้อไหมพรมถักตัวหนาตัวเดิม เดินไปแง้มประตูไม้เพื่อแขวนป้ายเก่าที่เขียนข้อความว่า <em>*“รับส่งพัสดุถึงผู้ไม่มีที่อยู่”*</em> ก่อนจะปิดประตูล็อคกลอนดังเดิมเพื่อกั้นความหนาวเย็นจากภายนอก</p>
+                <p>กล่องพัสดุของเกมและหญิงชราบนชั้นวางไม้บัดนี้ได้หายไปแล้ว ชั้นวางของบางส่วนว่างเปล่าลง ทว่าบางส่วนยังคงมีกล่องพัสดุมัดเชือกป่านสีน้ำตาลวางเรียงรายอยู่อย่างอดทน</p>
+                <p>ชายชราเดินกลับมาหลังเคาน์เตอร์ บรรจงรินชาอู่หลงสีทองร้อน ๆ ลงในถ้วยกระเบื้องเคลือบ ปล่อยให้กลิ่นหอมกรุ่นอันผ่อนคลายทำหน้าที่โอบอุ้มร้านค้าเล็ก ๆ หลังนี้ไว้</p>
+                <p><em>กรุ๊งกริ๊ง...</em></p>
+                <p>เสียงระฆังทองเหลืองเหนือบานประตูดังขึ้นเบา ๆ บานประตูไม้แง้มเปิดออกอย่างเหนียมอาย ลมหนาวและลมฝนพัดหอบเอาละอองน้ำเข้ามาในร้านช่วงสั้น ๆ ก่อนที่ประตูจะถูกดึงปิดลง</p>
+                <p>ผู้มาเยือนคนใหม่ก้าวเข้ามาในร้าน เธอเป็นหญิงสาววัยทำงานคนหนึ่ง เนื้อตัวเปียกปอนไปด้วยน้ำฝนจนหนาวสั่น ใบหน้าของเธอฉายความเหนื่อยล้า หมองเศร้า และสับสนอย่างรุนแรง ในอ้อมแขนของเธอโอบกอดไดอารี่ปกหนังเล่มเก่าใบหนึ่งไว้แนบแน่นราวกับว่ามันเป็นสิ่งยึดเหนี่ยวชิ้นสุดท้ายในชีวิตของเธอ</p>
+                <p>เธอหยุดยืนอยู่ตรงหน้าประตู มองซ้ายมองขวาอย่างไม่แน่ใจ สายตาจับจ้องไปที่ป้ายหน้าร้านและชั้นวางกล่องพัสดุกระดาษสีน้ำตาล</p>
+                <p>ชายชราจ้องมองเธอด้วยดวงตาฝ้าฟางที่เต็มไปด้วยความเมตตาและเข้าใจในความเจ็บปวด เขาไม่ได้เอ่ยถามคำถามใด ๆ หรือเร่งเร้า ชายชราเพียงแค่ยื่นผ้าขนหนูผืนสะอาดและแห้งสนิทข้ามเคาน์เตอร์ไม้หนาไปให้เธอ พร้อมกับดันถ้วยชาร้อนสีทองกรุ่นไปวางไว้ใกล้ ๆ</p>
+                <p>“ฝนตกหนักเชียว เข้ามาข้างในก่อนสิคุณ... ดื่มชาอุ่น ๆ ก่อนสิ มันช่วยให้ร่างกายปรับอุณหภูมิได้ดีขึ้น”</p>
+                <p>หญิงสาวสั่นสะท้านเล็กน้อยก่อนจะพยักหน้ารับช้า ๆ เธอรับผ้าขนหนูมาซับหน้าและเดินขยับเข้ามาทรุดตัวนั่งบนเก้าอี้ไม้หน้าเคาน์เตอร์ ชาร้อนอุ่น ๆ โชยกลิ่นหอมปลอบประโลมจิตใจที่เว้าแหว่งของเธอทีละน้อย</p>
+                <p>ชายชรายิ้มให้บาง ๆ ก่อนจะหันไปดึงกล่องกระดาษสีน้ำตาลพับแบนขนาดกลางกล่องหนึ่งลงมาจากชั้นวางของ เขาจัดแจงกางมันออกจนกลายเป็นรูปทรงสี่เหลี่ยม แล้วเลื่อนมันไปตรงหน้าของเธออย่างเงียบ ๆ</p>
+                <p>“เมื่อไหร่ที่เธอพร้อม... ค่อยใส่สิ่งที่อยากส่งลงไปในนี้” ชายชราเอ่ยน้ำเสียงอบอุ่น</p>
+                <p>หญิงสาวมองกล่องเปล่าใบนั้นสลับกับไดอารี่ในมือ หยดน้ำตาหยดแรกของความเสียใจไหลร่วงลงอาบแก้มของเธออย่างเชื่องช้า ดนตรีแห่งสายฝนภายนอกร้านยังคงบรรเลงต่อไปอย่างไม่มีวันจบสิ้น ราวกับเป็นพยานรักในการเริ่มต้นเดินทางครั้งใหม่ของหัวใจอีกดวงหนึ่ง</p>
+                <p>ร้านส่งพัสดุแห่งนี้ยังคงเปิดให้บริการในคืนฝนตก...</p>
+                <p>มันไม่ได้รอคอยลูกค้าเพื่อทำยอดขาย ไม่ได้รอคอยเพื่อแสวงหาผลกำไร แต่มันเปิดอยู่เพื่อคอยต้อนรับผู้คนที่ยังติดค้างในอดีต คอยยื่นมือเข้าช่วยโอบอุ้มความเสียใจ และนำทางพวกเขาให้กลับมามีกำลังใจก้าวเดินต่อไปได้ด้วยตัวเองในวันที่ฟ้าสว่าง</p>
+                <p>เพราะบางครั้ง... สิ่งที่ควรรีบส่งที่สุด ไม่ใช่พัสดุ</p>
+                <p>แต่เป็นคำพูด... ในวันที่ยังมีคนรอฟัง</p>
+            </div>
+        </article>
+        
+        <footer>
+            <p>© 2026 นวนิยาย "ก่อนฝนจะหยุดตก" - สร้างสรรค์ด้วยความใส่ใจเพื่อผู้ที่กำลังเรียนรู้ที่จะปล่อยวาง</p>
+        </footer>
+
+    </main>
+
+    <!-- Floating Navigation Controls -->
+    <div class="floating-controls">
+        <button class="btn-float" id="btn-toggle-sound-float" title="เปิด/ปิดเสียงฝนตกคลอ">
+            <!-- Cloud Rain icon -->
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M19.36 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.64-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/>
+            </svg>
+        </button>
+        <button class="btn-float" id="btn-scroll-top" title="เลื่อนขึ้นบนสุด">
+            <!-- Arrow Up Icon -->
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- JavaScript code -->
+    <script>
+        // Reading Settings & Theme Variables
+        let currentFontSize = 18; // Default font size in pixels
+        const minFontSize = 14;
+        const maxFontSize = 26;
+        
+        // DOM Elements
+        const body = document.getElementById('reader-body');
+        const sidebar = document.getElementById('sidebar-toc');
+        const overlay = document.getElementById('sidebar-overlay');
+        const settingsDropdown = document.getElementById('settings-dropdown');
+        const readingProgress = document.getElementById('reading-progress');
+        const readingArea = document.getElementById('reading-area');
+        
+        // Buttons
+        const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+        const btnToggleSettings = document.getElementById('btn-toggle-settings');
+        const btnFontDec = document.getElementById('btn-font-dec');
+        const btnFontInc = document.getElementById('btn-font-inc');
+        const btnScrollTop = document.getElementById('btn-scroll-top');
+        const btnSoundToggleHeader = document.getElementById('btn-sound-toggle-header');
+        const btnSoundToggleFloat = document.getElementById('btn-toggle-sound-float');
+        const rainSoundCheckbox = document.getElementById('rain-sound-checkbox');
+        const btnSoundTogglePanel = document.getElementById('btn-sound-toggle-panel');
+        const volumeSliderContainer = document.getElementById('volume-slider-container');
+        const rainVolumeSlider = document.getElementById('rain-volume');
+
+        // Initialize Settings
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup Sidebar Toggle
+            btnToggleSidebar.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', closeAllPanels);
+            
+            // Setup TOC navigation scroll and active state
+            document.querySelectorAll('.toc-item a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                        closeAllPanels();
+                    }
+                });
+            });
+
+            // Settings Dropdown Panel Toggle
+            btnToggleSettings.addEventListener('click', (e) => {
+                e.stopPropagation();
+                settingsDropdown.classList.toggle('open');
+            });
+            document.addEventListener('click', (e) => {
+                if (!settingsDropdown.contains(e.target) && e.target !== btnToggleSettings && !btnToggleSettings.contains(e.target)) {
+                    settingsDropdown.classList.remove('open');
+                }
+            });
+
+            // Theme Buttons setup
+            document.querySelectorAll('.btn-theme').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const theme = btn.getAttribute('data-theme');
+                    setTheme(theme);
+                });
+            });
+
+            // Font controls
+            btnFontDec.addEventListener('click', () => adjustFontSize(-2));
+            btnFontInc.addEventListener('click', () => adjustFontSize(2));
+
+            // Floating Scroll Top Button
+            btnScrollTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Ambient Rain Sound Events
+            btnSoundToggleHeader.addEventListener('click', toggleRainSound);
+            btnSoundToggleFloat.addEventListener('click', toggleRainSound);
+            rainSoundCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    playRain();
+                } else {
+                    stopRain();
+                }
+            });
+            rainVolumeSlider.addEventListener('input', (e) => {
+                setRainVolume(e.target.value);
+            });
+
+            // Scroll position monitor (Progress Bar, Floating button visibility, Active Chapter highlight)
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Call once at start
+        });
+
+        // Toggle Sidebar Drawer
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Close Sidebar and Settings Dropdown
+        function closeAllPanels() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            settingsDropdown.classList.remove('open');
+        }
+
+        // Set Reading Theme
+        function setTheme(theme) {
+            body.className = '';
+            body.classList.add(`theme-${theme}`);
+            
+            // Update active state in settings button
+            document.querySelectorAll('.btn-theme').forEach(btn => {
+                if (btn.getAttribute('data-theme') === theme) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Save preference
+            localStorage.setItem('ebook-reader-theme', theme);
+        }
+
+        // Adjust Content Font Size
+        function adjustFontSize(step) {
+            let newSize = currentFontSize + step;
+            if (newSize >= minFontSize && newSize <= maxFontSize) {
+                currentFontSize = newSize;
+                readingArea.style.fontSize = `${currentFontSize}px`;
+            }
+        }
+
+        // Handle Window Scrolling Tasks
+        function handleScroll() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            
+            // 1. Reading Progress calculation
+            if (docHeight > 0) {
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                readingProgress.style.width = `${scrollPercent}%`;
+            }
+
+            // 2. Float Back to Top visibility
+            if (scrollTop > 400) {
+                btnScrollTop.style.display = 'flex';
+            } else {
+                btnScrollTop.style.display = 'none';
+            }
+
+            // 3. Scroll spy - highlight active chapter in TOC
+            const sections = document.querySelectorAll('.chapter-section, .book-intro-card');
+            let currentActiveSection = 'intro';
+            
+            sections.forEach(sec => {
+                const rect = sec.getBoundingClientRect();
+                // If section is near top of viewport
+                if (rect.top <= 150) {
+                    currentActiveSection = sec.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.toc-item').forEach(item => {
+                if (item.getAttribute('data-target') === currentActiveSection) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+
+        /* ==========================================
+           WEB AUDIO API: NATURAL AMBIENT RAIN SYNTHESIZER
+           ========================================== */
+        
+        let audioCtx = null;
+        let isRainPlaying = false;
+        
+        // Audio Node references
+        let pinkNoiseSource = null;
+        let lowpassFilter = null;
+        
+        let gustNoiseSource = null;
+        let bandpassFilter = null;
+        let lfoGainNode = null;
+        let lfoSource = null;
+        
+        let masterGainNode = null;
+
+        function toggleRainSound() {
+            if (isRainPlaying) {
+                stopRain();
+            } else {
+                playRain();
+            }
+        }
+
+        function playRain() {
+            try {
+                // Initialize Audio Context on user gesture
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // Resume if suspended (browser autoplay policies)
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                if (isRainPlaying) return;
+
+                // Create Master Gain node for volume control
+                masterGainNode = audioCtx.createGain();
+                masterGainNode.gain.setValueAtTime(parseFloat(rainVolumeSlider.value), audioCtx.currentTime);
+                masterGainNode.connect(audioCtx.destination);
+
+                const bufferSize = 2 * audioCtx.sampleRate; // 2 seconds of sound buffer
+                
+                // 1. Generate Pink Noise buffer (natural sounding water/rain)
+                const pinkNoiseBuffer = createPinkNoiseBuffer(bufferSize);
+                
+                // --- Node Path A: Steady soft rain rumble ---
+                pinkNoiseSource = audioCtx.createBufferSource();
+                pinkNoiseSource.buffer = pinkNoiseBuffer;
+                pinkNoiseSource.loop = true;
+
+                lowpassFilter = audioCtx.createBiquadFilter();
+                lowpassFilter.type = 'lowpass';
+                lowpassFilter.frequency.setValueAtTime(450, audioCtx.currentTime); // Soft muffling of rain
+
+                const steadyGain = audioCtx.createGain();
+                steadyGain.gain.setValueAtTime(0.75, audioCtx.currentTime);
+
+                pinkNoiseSource.connect(lowpassFilter);
+                lowpassFilter.connect(steadyGain);
+                steadyGain.connect(masterGainNode);
+
+                // --- Node Path B: Gusts/Pitter-patter modulation ---
+                gustNoiseSource = audioCtx.createBufferSource();
+                gustNoiseSource.buffer = pinkNoiseBuffer;
+                gustNoiseSource.loop = true;
+
+                bandpassFilter = audioCtx.createBiquadFilter();
+                bandpassFilter.type = 'bandpass';
+                bandpassFilter.frequency.setValueAtTime(1000, audioCtx.currentTime); // Rain hitting surface frequency
+                bandpassFilter.Q.setValueAtTime(1.5, audioCtx.currentTime);
+
+                lfoGainNode = audioCtx.createGain();
+                lfoGainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+                // LFO to modulate the gusts of wind/rain density (LFO at 0.08 Hz - very slow)
+                lfoSource = audioCtx.createOscillator();
+                lfoSource.type = 'sine';
+                lfoSource.frequency.setValueAtTime(0.08, audioCtx.currentTime); 
+                
+                const lfoIntensity = audioCtx.createGain();
+                lfoIntensity.gain.setValueAtTime(0.12, audioCtx.currentTime);
+
+                lfoSource.connect(lfoIntensity);
+                lfoIntensity.connect(lfoGainNode.gain); // Modulate gain of Path B
+
+                gustNoiseSource.connect(bandpassFilter);
+                bandpassFilter.connect(lfoGainNode);
+                lfoGainNode.connect(masterGainNode);
+
+                // Start playback nodes
+                pinkNoiseSource.start(0);
+                gustNoiseSource.start(0);
+                lfoSource.start(0);
+
+                isRainPlaying = true;
+                updateRainUI(true);
+
+            } catch (err) {
+                console.error("Failed to start rain audio synthesis: ", err);
+                alert("ระบบเสียงฝนสังเคราะห์มีข้อผิดพลาดในเบราว์เซอร์นี้");
+                updateRainUI(false);
+            }
+        }
+
+        function stopRain() {
+            if (!isRainPlaying) return;
+
+            try {
+                if (pinkNoiseSource) {
+                    pinkNoiseSource.stop();
+                    pinkNoiseSource.disconnect();
+                }
+                if (gustNoiseSource) {
+                    gustNoiseSource.stop();
+                    gustNoiseSource.disconnect();
+                }
+                if (lfoSource) {
+                    lfoSource.stop();
+                    lfoSource.disconnect();
+                }
+                if (masterGainNode) {
+                    masterGainNode.disconnect();
+                }
+            } catch (e) {
+                // Ignore stop errors if already stopped
+            }
+
+            isRainPlaying = false;
+            updateRainUI(false);
+        }
+
+        function setRainVolume(val) {
+            if (masterGainNode && audioCtx) {
+                masterGainNode.gain.linearRampToValueAtTime(parseFloat(val), audioCtx.currentTime + 0.1);
+            }
+        }
+
+        // Helper: Pink Noise Algorithm
+        function createPinkNoiseBuffer(bufferSize) {
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Paul Kellet's refined method
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                data[i] *= 0.11; // normalise volume
+                b6 = white * 0.115926;
+            }
+            return buffer;
+        }
+
+        // Update UI states for Rain Sound Control
+        function updateRainUI(isPlaying) {
+            // Update Checkbox
+            rainSoundCheckbox.checked = isPlaying;
+            
+            // Update Headers Icon
+            const headerIconSvg = document.getElementById('rain-icon-svg');
+            const rainDrops = headerIconSvg.querySelector('.rain-drops-svg');
+            
+            if (isPlaying) {
+                btnSoundToggleHeader.style.color = 'var(--accent-color)';
+                btnSoundToggleFloat.style.color = 'var(--accent-color)';
+                btnSoundToggleFloat.style.borderColor = 'var(--accent-color)';
+                if (rainDrops) rainDrops.style.display = 'block';
+                volumeSliderContainer.classList.add('active');
+            } else {
+                btnSoundToggleHeader.style.color = 'inherit';
+                btnSoundToggleFloat.style.color = 'inherit';
+                btnSoundToggleFloat.style.borderColor = 'var(--border-color)';
+                if (rainDrops) rainDrops.style.display = 'none';
+                volumeSliderContainer.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
